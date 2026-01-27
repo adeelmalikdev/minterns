@@ -12,6 +12,8 @@ import StudentOpportunities from "./pages/student/Opportunities";
 import StudentOpportunityDetails from "./pages/student/OpportunityDetails";
 import StudentApplications from "./pages/student/Applications";
 import RecruiterDashboard from "./pages/recruiter/Dashboard";
+import RecruiterPostOpportunity from "./pages/recruiter/PostOpportunity";
+import RecruiterManageApplicants from "./pages/recruiter/ManageApplicants";
 import AdminDashboard from "./pages/admin/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -98,6 +100,22 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute allowedRoles={["recruiter"]}>
           <RecruiterDashboard />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/recruiter/post" 
+      element={
+        <ProtectedRoute allowedRoles={["recruiter"]}>
+          <RecruiterPostOpportunity />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/recruiter/opportunities/:id/applicants" 
+      element={
+        <ProtectedRoute allowedRoles={["recruiter"]}>
+          <RecruiterManageApplicants />
         </ProtectedRoute>
       } 
     />

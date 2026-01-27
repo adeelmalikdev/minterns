@@ -1,0 +1,314 @@
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, User, Mail, Calendar, FileText, Check, X } from "lucide-react";
+import { format } from "date-fns";
+import { Navbar } from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRecruiterOpportunityWithApplicants, useUpdateApplicationStatus } from "@/hooks/useRecruiterData";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+const statusConfig = {
+  pending: { label: "Pending", color: "bg-warning/10 text-warning" },
+  accepted: { label: "Accepted", color: "bg-success/10 text-success" },
+  rejected: { label: "Rejected", color: "bg-destructive/10 text-destructive" },
+  in_progress: { label: "In Progress", color: "bg-info/10 text-info" },
+  completed: { label: "Completed", color: "bg-success/10 text-success" },
+  withdrawn: { label: "Withdrawn", color: "bg-muted text-muted-foreground" },
+};
+
+export default function ManageApplicants() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const { data, isLoading, error } = useRecruiterOpportunityWithApplicants(id || "");
+  const updateStatus = useUpdateApplicationStatus();
+
+  const handleUpdateStatus = async (
+    applicationId: string,
+    status: "accepted" | "rejected" | "in_progress"
+  ) => {
+    try {
+      await updateStatus.mutateAsync({ applicationId, status });
+      toast({
+        title: "Status Updated",
+        description: `Application has been ${status}.`,
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update status";
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-muted/30">
+        <Navbar userRole="recruiter" />
+        <main className="container py-8">
+          <Skeleton className="h-8 w-32 mb-6" />
+          <Skeleton className="h-48 w-full mb-6" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-muted/30">
+        <Navbar userRole="recruiter" />
+        <main className="container py-8">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">
+                Opportunity not found or you don't have access.
+              </p>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  const { opportunity, applications } = data;
+  const pendingApplicants = applications.filter((a) => a.status === "pending");
+  const acceptedApplicants = applications.filter((a) => 
+    a.status === "accepted" || a.status === "in_progress" || a.status === "completed"
+  );
+
+  return (
+    <div className="min-h-screen bg-muted/30">
+      <Navbar userRole="recruiter" />
+
+      <main className="container py-8">
+        {/* Back Button */}
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Button>
+
+        {/* Opportunity Info */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground mb-2">
+                  {opportunity.title}
+                </h1>
+                <p className="text-muted-foreground">{opportunity.company_name}</p>
+              </div>
+              <Badge
+                variant="secondary"
+                className={
+                  opportunity.status === "published"
+                    ? "bg-success/10 text-success"
+                    : "bg-muted text-muted-foreground"
+                }
+              >
+                {opportunity.status.charAt(0).toUpperCase() + opportunity.status.slice(1)}
+              </Badge>
+            </div>
+            <div className="flex gap-4 mt-4 text-sm text-muted-foreground">
+              <span>{applications.length} Total Applicants</span>
+              <span>•</span>
+              <span>{pendingApplicants.length} Pending Review</span>
+              <span>•</span>
+              <span>{acceptedApplicants.length} Accepted</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pending Applications */}
+        {pendingApplicants.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-4">Pending Review ({pendingApplicants.length})</h2>
+            <div className="space-y-4">
+              {pendingApplicants.map((application) => (
+                <ApplicantCard
+                  key={application.id}
+                  application={application}
+                  onAccept={() => handleUpdateStatus(application.id, "accepted")}
+                  onReject={() => handleUpdateStatus(application.id, "rejected")}
+                  isPending={updateStatus.isPending}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* All Applications */}
+        <div>
+          <h2 className="text-lg font-semibold mb-4">All Applications ({applications.length})</h2>
+          {applications.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No applications yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {applications.map((application) => (
+                <ApplicantCard
+                  key={application.id}
+                  application={application}
+                  onAccept={() => handleUpdateStatus(application.id, "accepted")}
+                  onReject={() => handleUpdateStatus(application.id, "rejected")}
+                  isPending={updateStatus.isPending}
+                  showActions={application.status === "pending"}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+interface ApplicantCardProps {
+  application: {
+    id: string;
+    status: string;
+    cover_letter: string | null;
+    created_at: string;
+    profile: {
+      full_name: string | null;
+      email: string;
+      avatar_url: string | null;
+    } | null;
+  };
+  onAccept: () => void;
+  onReject: () => void;
+  isPending: boolean;
+  showActions?: boolean;
+}
+
+function ApplicantCard({
+  application,
+  onAccept,
+  onReject,
+  isPending,
+  showActions = true,
+}: ApplicantCardProps) {
+  const status = statusConfig[application.status as keyof typeof statusConfig] || statusConfig.pending;
+  const profile = application.profile;
+
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+          {/* Avatar & Info */}
+          <div className="flex items-center gap-4 flex-1">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback>
+                {profile?.full_name?.charAt(0) || "?"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="font-semibold text-foreground">
+                {profile?.full_name || "Unknown Student"}
+              </h3>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Mail className="h-3 w-3" />
+                {profile?.email || "No email"}
+              </div>
+            </div>
+          </div>
+
+          {/* Status & Date */}
+          <div className="flex items-center gap-4">
+            <Badge className={status.color}>{status.label}</Badge>
+            <span className="text-sm text-muted-foreground flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {format(new Date(application.created_at), "MMM d, yyyy")}
+            </span>
+          </div>
+
+          {/* Actions */}
+          {showActions && application.status === "pending" && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={onAccept}
+                disabled={isPending}
+                className="gap-1"
+              >
+                <Check className="h-4 w-4" />
+                Accept
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isPending}
+                    className="gap-1"
+                  >
+                    <X className="h-4 w-4" />
+                    Reject
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Reject Application?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to reject this application? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={onReject}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Reject
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+        </div>
+
+        {/* Cover Letter */}
+        {application.cover_letter && (
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+              <FileText className="h-3 w-3" />
+              Cover Letter
+            </p>
+            <p className="text-sm text-foreground">{application.cover_letter}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
