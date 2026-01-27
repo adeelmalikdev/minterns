@@ -14,6 +14,171 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          cover_letter: string | null
+          created_at: string
+          id: string
+          opportunity_id: string
+          resume_url: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          cover_letter?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          cover_letter?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      certificates: {
+        Row: {
+          application_id: string
+          id: string
+          issued_at: string
+          student_id: string
+          verification_code: string
+        }
+        Insert: {
+          application_id: string
+          id?: string
+          issued_at?: string
+          student_id: string
+          verification_code?: string
+        }
+        Update: {
+          application_id?: string
+          id?: string
+          issued_at?: string
+          student_id?: string
+          verification_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback: {
+        Row: {
+          application_id: string
+          comments: string | null
+          created_at: string
+          evaluator_id: string
+          id: string
+          rating: number
+          skills_demonstrated: string[]
+        }
+        Insert: {
+          application_id: string
+          comments?: string | null
+          created_at?: string
+          evaluator_id: string
+          id?: string
+          rating: number
+          skills_demonstrated?: string[]
+        }
+        Update: {
+          application_id?: string
+          comments?: string | null
+          created_at?: string
+          evaluator_id?: string
+          id?: string
+          rating?: number
+          skills_demonstrated?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunities: {
+        Row: {
+          company_name: string
+          created_at: string
+          deadline: string | null
+          description: string
+          duration_hours: number
+          id: string
+          is_remote: boolean
+          level: Database["public"]["Enums"]["opportunity_level"]
+          location: string | null
+          max_applicants: number | null
+          recruiter_id: string
+          skills_required: string[]
+          status: Database["public"]["Enums"]["opportunity_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_name: string
+          created_at?: string
+          deadline?: string | null
+          description: string
+          duration_hours?: number
+          id?: string
+          is_remote?: boolean
+          level?: Database["public"]["Enums"]["opportunity_level"]
+          location?: string | null
+          max_applicants?: number | null
+          recruiter_id: string
+          skills_required?: string[]
+          status?: Database["public"]["Enums"]["opportunity_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          duration_hours?: number
+          id?: string
+          is_remote?: boolean
+          level?: Database["public"]["Enums"]["opportunity_level"]
+          location?: string | null
+          max_applicants?: number | null
+          recruiter_id?: string
+          skills_required?: string[]
+          status?: Database["public"]["Enums"]["opportunity_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -43,6 +208,101 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      task_submissions: {
+        Row: {
+          application_id: string
+          feedback: string | null
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          status: Database["public"]["Enums"]["submission_status"]
+          student_id: string
+          submission_url: string | null
+          submitted_at: string
+          task_id: string
+        }
+        Insert: {
+          application_id: string
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          student_id: string
+          submission_url?: string | null
+          submitted_at?: string
+          task_id: string
+        }
+        Update: {
+          application_id?: string
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          student_id?: string
+          submission_url?: string | null
+          submitted_at?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_submissions_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_submissions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_days: number | null
+          id: string
+          opportunity_id: string
+          order_index: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_days?: number | null
+          id?: string
+          opportunity_id: string
+          order_index?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_days?: number | null
+          id?: string
+          opportunity_id?: string
+          order_index?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -84,6 +344,16 @@ export type Database = {
     }
     Enums: {
       app_role: "student" | "recruiter" | "admin"
+      application_status:
+        | "pending"
+        | "accepted"
+        | "rejected"
+        | "in_progress"
+        | "completed"
+        | "withdrawn"
+      opportunity_level: "beginner" | "intermediate" | "advanced"
+      opportunity_status: "draft" | "published" | "closed"
+      submission_status: "pending" | "approved" | "needs_revision"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -212,6 +482,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["student", "recruiter", "admin"],
+      application_status: [
+        "pending",
+        "accepted",
+        "rejected",
+        "in_progress",
+        "completed",
+        "withdrawn",
+      ],
+      opportunity_level: ["beginner", "intermediate", "advanced"],
+      opportunity_status: ["draft", "published", "closed"],
+      submission_status: ["pending", "approved", "needs_revision"],
     },
   },
 } as const
