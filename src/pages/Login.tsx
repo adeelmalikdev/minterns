@@ -15,8 +15,8 @@ type UserRole = "student" | "recruiter" | "admin";
 const roleConfig = {
   student: {
     icon: GraduationCap,
-    emailLabel: "IIUI Email",
-    emailPlaceholder: "student@iiu.edu.pk",
+    emailLabel: "Email",
+    emailPlaceholder: "you@example.com",
     buttonText: "Sign In as Student",
     signupButtonText: "Sign Up as Student",
     signupText: "Don't have an account?",
@@ -25,8 +25,8 @@ const roleConfig = {
   },
   recruiter: {
     icon: Building2,
-    emailLabel: "Company Email",
-    emailPlaceholder: "hr@company.com",
+    emailLabel: "Email",
+    emailPlaceholder: "you@example.com",
     buttonText: "Sign In as Recruiter",
     signupButtonText: "Register as Recruiter",
     signupText: "New recruiter?",
@@ -35,8 +35,8 @@ const roleConfig = {
   },
   admin: {
     icon: Shield,
-    emailLabel: "Admin Email",
-    emailPlaceholder: "admin@iiu.edu.pk",
+    emailLabel: "Email",
+    emailPlaceholder: "you@example.com",
     buttonText: "Sign In as Admin",
     signupButtonText: "Sign Up as Admin",
     signupText: "",
