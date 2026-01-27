@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { useAuth } from "@/hooks/useAuth";
 
 const stats = [
   { title: "Total Students", value: "2,547", icon: Users, iconColor: "text-info", trend: { value: "+12%", positive: true } },
@@ -40,6 +41,8 @@ const pendingOpportunities = [
 ];
 
 export default function AdminDashboard() {
+  const { profile } = useAuth();
+  
   return (
     <div className="min-h-screen bg-muted/30">
       <Navbar userRole="admin" />
@@ -47,7 +50,12 @@ export default function AdminDashboard() {
       <main className="container py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Welcome back, {profile?.full_name || "Admin"}
+          </p>
         </div>
 
         {/* Stats Grid */}

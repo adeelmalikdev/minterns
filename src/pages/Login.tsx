@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { GraduationCap, Building2, Shield } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 type UserRole = "student" | "recruiter" | "admin";
 
@@ -16,6 +18,7 @@ const roleConfig = {
     emailLabel: "IIUI Email",
     emailPlaceholder: "student@iiu.edu.pk",
     buttonText: "Sign In as Student",
+    signupButtonText: "Sign Up as Student",
     signupText: "Don't have an account?",
     signupLink: "Sign up",
     dashboardPath: "/student/dashboard",
@@ -25,6 +28,7 @@ const roleConfig = {
     emailLabel: "Company Email",
     emailPlaceholder: "hr@company.com",
     buttonText: "Sign In as Recruiter",
+    signupButtonText: "Register as Recruiter",
     signupText: "New recruiter?",
     signupLink: "Register your company",
     dashboardPath: "/recruiter/dashboard",
@@ -34,6 +38,7 @@ const roleConfig = {
     emailLabel: "Admin Email",
     emailPlaceholder: "admin@iiu.edu.pk",
     buttonText: "Sign In as Admin",
+    signupButtonText: "Sign Up as Admin",
     signupText: "",
     signupLink: "",
     dashboardPath: "/admin/dashboard",
@@ -44,10 +49,14 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialRole = (searchParams.get("role") as UserRole) || "student";
+  const { signIn, signUp, role: userRole } = useAuth();
+  const { toast } = useToast();
   
   const [role, setRole] = useState<UserRole>(initialRole);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const config = roleConfig[role];
@@ -56,24 +65,65 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate login - in production, this would call an auth API
-    setTimeout(() => {
+    try {
+      if (isSignUp) {
+        const { error } = await signUp(email, password, fullName, role);
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Sign up failed",
+            description: error.message,
+          });
+        } else {
+          toast({
+            title: "Account created!",
+            description: "You can now sign in with your credentials.",
+          });
+          setIsSignUp(false);
+        }
+      } else {
+        const { error } = await signIn(email, password);
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Sign in failed",
+            description: error.message,
+          });
+        } else {
+          // Wait a moment for auth state to update then navigate
+          setTimeout(() => {
+            navigate(config.dashboardPath);
+          }, 100);
+        }
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred.",
+      });
+    } finally {
       setIsLoading(false);
-      navigate(config.dashboardPath);
-    }, 1000);
+    }
   };
 
   return (
     <div className="min-h-screen gradient-hero flex flex-col">
       <div className="container py-6">
-        <Logo />
+        <Link to="/">
+          <Logo />
+        </Link>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 pb-12">
         <Card className="w-full max-w-md shadow-lg animate-fade-in">
           <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your μ-intern account</CardDescription>
+            <CardTitle className="text-2xl font-bold">
+              {isSignUp ? "Create Account" : "Welcome Back"}
+            </CardTitle>
+            <CardDescription>
+              {isSignUp ? "Sign up for μ-intern" : "Sign in to your μ-intern account"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={role} onValueChange={(v) => setRole(v as UserRole)} className="mb-6">
@@ -94,6 +144,21 @@ export default function Login() {
             </Tabs>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="bg-muted"
+                  />
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">{config.emailLabel}</Label>
                 <Input
@@ -116,23 +181,41 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                   className="bg-muted"
                 />
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : config.buttonText}
+                {isLoading 
+                  ? (isSignUp ? "Creating account..." : "Signing in...") 
+                  : (isSignUp ? config.signupButtonText : config.buttonText)}
               </Button>
             </form>
 
-            {config.signupText && (
-              <p className="text-center text-sm text-muted-foreground mt-6">
-                {config.signupText}{" "}
-                <a href="#" className="text-primary font-medium hover:underline">
-                  {config.signupLink}
-                </a>
-              </p>
-            )}
+            <div className="text-center text-sm text-muted-foreground mt-6">
+              {isSignUp ? (
+                <p>
+                  Already have an account?{" "}
+                  <button 
+                    onClick={() => setIsSignUp(false)}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              ) : config.signupText ? (
+                <p>
+                  {config.signupText}{" "}
+                  <button 
+                    onClick={() => setIsSignUp(true)}
+                    className="text-primary font-medium hover:underline"
+                  >
+                    {config.signupLink}
+                  </button>
+                </p>
+              ) : null}
+            </div>
           </CardContent>
         </Card>
       </div>
