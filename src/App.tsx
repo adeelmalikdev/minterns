@@ -16,6 +16,7 @@ import RecruiterDashboard from "./pages/recruiter/Dashboard";
 import RecruiterPostOpportunity from "./pages/recruiter/PostOpportunity";
 import RecruiterManageApplicants from "./pages/recruiter/ManageApplicants";
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminActivities from "./pages/admin/Activities";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -135,6 +136,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute allowedRoles={["admin"]}>
           <AdminDashboard />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/admin/activities" 
+      element={
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminActivities />
         </ProtectedRoute>
       } 
     />

@@ -1,13 +1,16 @@
+import { useNavigate } from "react-router-dom";
 import { Users, Building2, TrendingUp, AlertTriangle } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminStats, usePlatformGrowth, useRecentActivity } from "@/hooks/useAdminData";
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const { data: stats, isLoading: statsLoading } = useAdminStats();
   const { data: chartData, isLoading: chartLoading } = usePlatformGrowth();
@@ -107,8 +110,11 @@ export default function AdminDashboard() {
 
           {/* Recent Activity */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/admin/activities")}>
+                See all
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {activityLoading ? (

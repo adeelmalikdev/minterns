@@ -30,6 +30,7 @@ const recruiterLinks = [
 
 const adminLinks = [
   { href: "/admin/dashboard", label: "Dashboard" },
+  { href: "/admin/activities", label: "Activities" },
 ];
 
 export function Navbar({ userRole }: NavbarProps) {
