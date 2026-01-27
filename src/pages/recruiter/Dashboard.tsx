@@ -1,47 +1,55 @@
-import { Building2, Users, Eye, CheckCircle, Plus, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Building2, Users, CheckCircle, Plus, FileText, TrendingUp } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
-
-const stats = [
-  { title: "Active Postings", value: 5, icon: Building2, iconColor: "text-info" },
-  { title: "Total Applicants", value: 48, icon: Users, iconColor: "text-secondary" },
-  { title: "Profile Views", value: 156, icon: Eye, iconColor: "text-accent" },
-  { title: "Completed Tasks", value: 23, icon: CheckCircle, iconColor: "text-success" },
-];
-
-const chartData = [
-  { name: "Dec", applications: 12 },
-  { name: "Jan", applications: 19 },
-];
-
-const activePostings = [
-  {
-    title: "Frontend Development",
-    applicants: 12,
-    views: 45,
-    status: "Active",
-  },
-  {
-    title: "Backend API Development",
-    applicants: 15,
-    views: 52,
-    status: "Active",
-  },
-  {
-    title: "UI/UX Design Task",
-    applicants: 8,
-    views: 38,
-    status: "Active",
-  },
-];
+import { useRecruiterStats, useRecruiterOpportunities } from "@/hooks/useRecruiterData";
 
 export default function RecruiterDashboard() {
+  const navigate = useNavigate();
   const { profile } = useAuth();
+  const { data: stats, isLoading: statsLoading } = useRecruiterStats();
+  const { data: opportunities, isLoading: oppsLoading } = useRecruiterOpportunities();
+
+  const statsData = [
+    { 
+      title: "Active Postings", 
+      value: statsLoading ? "..." : (stats?.activePostings || 0), 
+      icon: Building2, 
+      iconColor: "text-info" 
+    },
+    { 
+      title: "Total Applicants", 
+      value: statsLoading ? "..." : (stats?.totalApplicants || 0), 
+      icon: Users, 
+      iconColor: "text-secondary" 
+    },
+    { 
+      title: "Total Opportunities", 
+      value: statsLoading ? "..." : (stats?.totalOpportunities || 0), 
+      icon: TrendingUp, 
+      iconColor: "text-accent" 
+    },
+    { 
+      title: "Completed Tasks", 
+      value: statsLoading ? "..." : (stats?.completedTasks || 0), 
+      icon: CheckCircle, 
+      iconColor: "text-success" 
+    },
+  ];
+
+  // Generate chart data from opportunities (mock for now - would need applications timeline)
+  const chartData = [
+    { name: "Dec", applications: 12 },
+    { name: "Jan", applications: stats?.totalApplicants || 19 },
+  ];
+
+  const activePostings = opportunities?.filter(o => o.status === "published") || [];
   
   return (
     <div className="min-h-screen bg-muted/30">
@@ -56,7 +64,7 @@ export default function RecruiterDashboard() {
             </h1>
             <p className="text-muted-foreground">Manage your micro-internship postings</p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => navigate("/recruiter/post")}>
             <Plus className="h-4 w-4" />
             Post Opportunity
           </Button>
@@ -64,7 +72,7 @@ export default function RecruiterDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat) => (
+          {statsData.map((stat) => (
             <StatCard key={stat.title} {...stat} />
           ))}
         </div>
@@ -109,25 +117,45 @@ export default function RecruiterDashboard() {
               <CardTitle className="text-lg font-semibold">Active Postings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {activePostings.map((posting, index) => (
-                <Card key={index} className="shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-semibold text-foreground">{posting.title}</h3>
-                      <Badge variant="success" className="bg-success/10 text-success">
-                        {posting.status}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {posting.applicants} applicants • {posting.views} views
-                    </p>
-                    <Button variant="outline" size="sm" className="w-full gap-2">
-                      <FileText className="h-4 w-4" />
-                      View Applicants
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+              {oppsLoading ? (
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton key={i} className="h-24 w-full" />
+                  ))}
+                </>
+              ) : activePostings.length > 0 ? (
+                activePostings.slice(0, 3).map((posting) => (
+                  <Card key={posting.id} className="shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-semibold text-foreground">{posting.title}</h3>
+                        <Badge variant="secondary" className="bg-success/10 text-success">
+                          Active
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {posting.company_name}
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full gap-2"
+                        onClick={() => navigate(`/recruiter/opportunities/${posting.id}/applicants`)}
+                      >
+                        <FileText className="h-4 w-4" />
+                        View Applicants
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground mb-4">No active postings yet</p>
+                  <Button onClick={() => navigate("/recruiter/post")}>
+                    Create Your First Opportunity
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
