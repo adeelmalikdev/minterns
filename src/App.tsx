@@ -9,6 +9,8 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/student/Dashboard";
 import StudentOpportunities from "./pages/student/Opportunities";
+import StudentOpportunityDetails from "./pages/student/OpportunityDetails";
+import StudentApplications from "./pages/student/Applications";
 import RecruiterDashboard from "./pages/recruiter/Dashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -70,6 +72,22 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute allowedRoles={["student"]}>
           <StudentOpportunities />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/student/opportunities/:id" 
+      element={
+        <ProtectedRoute allowedRoles={["student"]}>
+          <StudentOpportunityDetails />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/student/applications" 
+      element={
+        <ProtectedRoute allowedRoles={["student"]}>
+          <StudentApplications />
         </ProtectedRoute>
       } 
     />
