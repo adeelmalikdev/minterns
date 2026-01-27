@@ -100,7 +100,8 @@ interface RecentActivity {
   id: string;
   event: string;
   time: string;
-  type: "registration" | "application" | "opportunity";
+  timestamp: string;
+  type: "registration" | "application" | "opportunity" | "status_change";
 }
 
 export function useRecentActivity() {
@@ -109,59 +110,167 @@ export function useRecentActivity() {
     queryFn: async (): Promise<RecentActivity[]> => {
       const activities: RecentActivity[] = [];
 
-      // Get recent registrations
+      // Get recent registrations with roles
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, full_name, created_at")
+        .select("id, user_id, full_name, created_at")
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(5);
+
+      // Get roles for these users
+      const userIds = profiles?.map(p => p.user_id) || [];
+      let rolesMap: Record<string, string> = {};
+      
+      if (userIds.length > 0) {
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("user_id, role")
+          .in("user_id", userIds);
+        
+        roles?.forEach(r => {
+          rolesMap[r.user_id] = r.role;
+        });
+      }
 
       profiles?.forEach((p) => {
+        const role = rolesMap[p.user_id] || "user";
         activities.push({
           id: `reg-${p.id}`,
-          event: `${p.full_name || "New user"} registered`,
+          event: `${p.full_name || "New user"} registered as ${role}`,
           time: getRelativeTime(p.created_at),
+          timestamp: p.created_at,
           type: "registration",
         });
       });
 
-      // Get recent applications
-      const { data: applications } = await supabase
-        .from("applications")
-        .select("id, created_at")
-        .order("created_at", { ascending: false })
-        .limit(3);
-
-      applications?.forEach((a) => {
-        activities.push({
-          id: `app-${a.id}`,
-          event: "New application submitted",
-          time: getRelativeTime(a.created_at),
-          type: "application",
-        });
-      });
-
-      // Get recent opportunities
+      // Get recent opportunities with recruiter info
       const { data: opportunities } = await supabase
         .from("opportunities")
-        .select("id, title, created_at")
+        .select("id, title, recruiter_id, created_at, status")
         .eq("status", "published")
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(5);
+
+      // Get recruiter profiles
+      const recruiterIds = opportunities?.map(o => o.recruiter_id) || [];
+      let recruiterMap: Record<string, string> = {};
+      
+      if (recruiterIds.length > 0) {
+        const { data: recruiterProfiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", recruiterIds);
+        
+        recruiterProfiles?.forEach(r => {
+          recruiterMap[r.user_id] = r.full_name || "Unknown";
+        });
+      }
 
       opportunities?.forEach((o) => {
+        const recruiterName = recruiterMap[o.recruiter_id] || "Unknown recruiter";
         activities.push({
           id: `opp-${o.id}`,
-          event: `Opportunity "${o.title}" published`,
+          event: `"${o.title}" posted by ${recruiterName}`,
           time: getRelativeTime(o.created_at),
+          timestamp: o.created_at,
           type: "opportunity",
         });
       });
 
-      // Sort by time and take top 5
+      // Get recent applications with student and opportunity info
+      const { data: applications } = await supabase
+        .from("applications")
+        .select("id, student_id, opportunity_id, status, created_at, updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(10);
+
+      // Get student profiles and opportunity details
+      const studentIds = applications?.map(a => a.student_id) || [];
+      const oppIds = applications?.map(a => a.opportunity_id) || [];
+      
+      let studentMap: Record<string, string> = {};
+      let oppMap: Record<string, { title: string; recruiter_id: string }> = {};
+
+      if (studentIds.length > 0) {
+        const { data: studentProfiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name")
+          .in("user_id", studentIds);
+        
+        studentProfiles?.forEach(s => {
+          studentMap[s.user_id] = s.full_name || "Unknown student";
+        });
+      }
+
+      if (oppIds.length > 0) {
+        const { data: opps } = await supabase
+          .from("opportunities")
+          .select("id, title, recruiter_id")
+          .in("id", oppIds);
+        
+        opps?.forEach(o => {
+          oppMap[o.id] = { title: o.title, recruiter_id: o.recruiter_id };
+        });
+
+        // Get recruiter names for these opportunities
+        const additionalRecruiterIds = opps?.map(o => o.recruiter_id).filter(id => !recruiterMap[id]) || [];
+        if (additionalRecruiterIds.length > 0) {
+          const { data: moreRecruiters } = await supabase
+            .from("profiles")
+            .select("user_id, full_name")
+            .in("user_id", additionalRecruiterIds);
+          
+          moreRecruiters?.forEach(r => {
+            recruiterMap[r.user_id] = r.full_name || "Unknown";
+          });
+        }
+      }
+
+      applications?.forEach((a) => {
+        const studentName = studentMap[a.student_id] || "Unknown student";
+        const oppInfo = oppMap[a.opportunity_id];
+        const oppTitle = oppInfo?.title || "Unknown opportunity";
+        const recruiterName = oppInfo ? (recruiterMap[oppInfo.recruiter_id] || "Unknown recruiter") : "Unknown recruiter";
+
+        if (a.status === "pending") {
+          activities.push({
+            id: `app-${a.id}`,
+            event: `${studentName} applied for "${oppTitle}"`,
+            time: getRelativeTime(a.created_at),
+            timestamp: a.created_at,
+            type: "application",
+          });
+        } else if (a.status === "accepted") {
+          activities.push({
+            id: `acc-${a.id}`,
+            event: `${studentName} accepted by ${recruiterName} for "${oppTitle}"`,
+            time: getRelativeTime(a.updated_at),
+            timestamp: a.updated_at,
+            type: "status_change",
+          });
+        } else if (a.status === "rejected") {
+          activities.push({
+            id: `rej-${a.id}`,
+            event: `${studentName} rejected by ${recruiterName} for "${oppTitle}"`,
+            time: getRelativeTime(a.updated_at),
+            timestamp: a.updated_at,
+            type: "status_change",
+          });
+        } else if (a.status === "completed") {
+          activities.push({
+            id: `comp-${a.id}`,
+            event: `${studentName} completed internship at "${oppTitle}"`,
+            time: getRelativeTime(a.updated_at),
+            timestamp: a.updated_at,
+            type: "status_change",
+          });
+        }
+      });
+
+      // Sort by timestamp and take top 10
       return activities
-        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-        .slice(0, 5);
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 10);
     },
   });
 }
