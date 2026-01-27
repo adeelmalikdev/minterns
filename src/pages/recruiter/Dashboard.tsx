@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
-import { useRecruiterStats, useRecruiterOpportunities } from "@/hooks/useRecruiterData";
+import { useRecruiterStats, useRecruiterOpportunities, useRecruiterApplicationTrends } from "@/hooks/useRecruiterData";
 
 export default function RecruiterDashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { data: stats, isLoading: statsLoading } = useRecruiterStats();
   const { data: opportunities, isLoading: oppsLoading } = useRecruiterOpportunities();
+  const { data: chartData, isLoading: chartLoading } = useRecruiterApplicationTrends();
 
   const statsData = [
     { 
@@ -41,12 +42,6 @@ export default function RecruiterDashboard() {
       icon: CheckCircle, 
       iconColor: "text-success" 
     },
-  ];
-
-  // Generate chart data from opportunities (mock for now - would need applications timeline)
-  const chartData = [
-    { name: "Dec", applications: 12 },
-    { name: "Jan", applications: stats?.totalApplicants || 19 },
   ];
 
   const activePostings = opportunities?.filter(o => o.status === "published") || [];
@@ -84,9 +79,12 @@ export default function RecruiterDashboard() {
               <CardTitle className="text-lg font-semibold">Applications Overview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
+              {chartLoading ? (
+                <Skeleton className="h-64 w-full" />
+              ) : chartData && chartData.length > 0 ? (
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                     <XAxis 
                       dataKey="name" 
@@ -108,6 +106,11 @@ export default function RecruiterDashboard() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              ) : (
+                <div className="h-64 flex items-center justify-center text-muted-foreground">
+                  No application data yet
+                </div>
+              )}
             </CardContent>
           </Card>
 
