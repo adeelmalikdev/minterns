@@ -61,6 +61,67 @@ export function useRecruiterStats() {
   });
 }
 
+export function useRecruiterApplicationTrends() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ["recruiter-application-trends", user?.id],
+    queryFn: async () => {
+      if (!user?.id) throw new Error("User not authenticated");
+
+      // Get all opportunities for this recruiter
+      const { data: opportunities, error: oppError } = await supabase
+        .from("opportunities")
+        .select("id")
+        .eq("recruiter_id", user.id);
+
+      if (oppError) throw oppError;
+
+      const opportunityIds = opportunities?.map((o) => o.id) || [];
+      
+      if (opportunityIds.length === 0) {
+        return [];
+      }
+
+      // Get applications with dates
+      const { data: applications, error: appError } = await supabase
+        .from("applications")
+        .select("id, created_at")
+        .in("opportunity_id", opportunityIds)
+        .order("created_at", { ascending: true });
+
+      if (appError) throw appError;
+
+      // Group by month
+      const monthlyData: Record<string, number> = {};
+      const now = new Date();
+      
+      // Initialize last 6 months
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = date.toLocaleString("default", { month: "short" });
+        monthlyData[key] = 0;
+      }
+
+      // Count applications per month
+      applications?.forEach((app) => {
+        const date = new Date(app.created_at);
+        const monthKey = date.toLocaleString("default", { month: "short" });
+        if (monthlyData.hasOwnProperty(monthKey)) {
+          monthlyData[monthKey]++;
+        }
+      });
+
+      // Convert to array for chart
+      return Object.entries(monthlyData).map(([name, applications]) => ({
+        name,
+        applications,
+      }));
+    },
+    enabled: !!user?.id,
+  });
+}
+
 export function useRecruiterOpportunities() {
   const { user } = useAuth();
 
