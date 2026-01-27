@@ -189,12 +189,12 @@ function InternshipCard({
 }
 
 export default function StudentPortfolio() {
-  const { profile } = useAuth();
+  const { profile, role } = useAuth();
   const { data: portfolio, isLoading, error } = useStudentPortfolio();
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar userRole={role} />
       <main className="container mx-auto px-4 py-8">
         {isLoading ? (
           <PortfolioSkeleton />
