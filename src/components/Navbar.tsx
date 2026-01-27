@@ -1,8 +1,16 @@
-import { Link, useLocation } from "react-router-dom";
-import { User } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { User, LogOut } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavbarProps {
   userRole?: "student" | "recruiter" | "admin" | null;
@@ -26,6 +34,9 @@ const adminLinks = [
 
 export function Navbar({ userRole }: NavbarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { profile, signOut } = useAuth();
+  
   const links = userRole === "student" 
     ? studentLinks 
     : userRole === "recruiter" 
@@ -34,11 +45,18 @@ export function Navbar({ userRole }: NavbarProps) {
     ? adminLinks 
     : [];
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-8">
-          <Logo showSubtitle={!!userRole} />
+          <Link to={userRole ? `/${userRole}/dashboard` : "/"}>
+            <Logo showSubtitle={!!userRole} />
+          </Link>
           
           {userRole && (
             <div className="hidden md:flex items-center gap-6">
@@ -62,10 +80,26 @@ export function Navbar({ userRole }: NavbarProps) {
 
         <div className="flex items-center gap-4">
           {userRole ? (
-            <Button variant="ghost" size="sm" className="gap-2">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Account</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">
+                    {profile?.full_name || "Account"}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem className="text-muted-foreground text-xs">
+                  {profile?.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Link to="/login">

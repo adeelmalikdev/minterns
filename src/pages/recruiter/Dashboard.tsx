@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { useAuth } from "@/hooks/useAuth";
 
 const stats = [
   { title: "Active Postings", value: 5, icon: Building2, iconColor: "text-info" },
@@ -40,6 +41,8 @@ const activePostings = [
 ];
 
 export default function RecruiterDashboard() {
+  const { profile } = useAuth();
+  
   return (
     <div className="min-h-screen bg-muted/30">
       <Navbar userRole="recruiter" />
@@ -48,7 +51,9 @@ export default function RecruiterDashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Recruiter Dashboard</h1>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Welcome, {profile?.full_name || "Recruiter"}
+            </h1>
             <p className="text-muted-foreground">Manage your micro-internship postings</p>
           </div>
           <Button className="gap-2">

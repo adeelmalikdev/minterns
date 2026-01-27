@@ -6,7 +6,7 @@ import { TaskCard } from "@/components/TaskCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-
+import { useAuth } from "@/hooks/useAuth";
 const stats = [
   { title: "Applications", value: 12, icon: FileText, iconColor: "text-info" },
   { title: "Active Tasks", value: 3, icon: Clock, iconColor: "text-warning" },
@@ -75,6 +75,9 @@ const performance = [
 ];
 
 export default function StudentDashboard() {
+  const { profile } = useAuth();
+  const firstName = profile?.full_name?.split(" ")[0] || "Student";
+  
   return (
     <div className="min-h-screen bg-muted/30">
       <Navbar userRole="student" />
@@ -83,7 +86,7 @@ export default function StudentDashboard() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome back, Ahmed! 👋
+            Welcome back, {firstName}! 👋
           </h1>
           <p className="text-muted-foreground">
             Here's what's happening with your micro-internships today.
