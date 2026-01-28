@@ -67,9 +67,6 @@ export default function Landing() {
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
-              <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                For IIUI CS/IT/SE Students
-              </div>
               <h1 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-6">
                 Build Your Portfolio with{" "}
                 <span className="text-accent">Micro-Internships</span>
