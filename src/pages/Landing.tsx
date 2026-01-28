@@ -227,7 +227,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="border-t border-background/20 pt-8 text-center text-sm text-background/60">
-            © 2026 μ-intern Platform | International Islamic University Islamabad
+            © 2026 μ-intern Platform | All Rights Reserved
           </div>
         </div>
       </footer>
