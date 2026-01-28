@@ -73,7 +73,7 @@ export default function StudentDashboard() {
             Welcome back, {firstName}! 👋
           </h1>
           <p className="text-muted-foreground">
-            Here's what's happening with your micro-internships today.
+            Track your micro-internship journey at IIUI SE/IT/CS.
           </p>
         </div>
 
