@@ -21,29 +21,25 @@ export default function AdminDashboard() {
       title: "Total Students", 
       value: statsLoading ? "..." : stats?.totalStudents.toLocaleString() || "0", 
       icon: Users, 
-      iconColor: "text-info",
-      trend: { value: "+12%", positive: true }
+      iconColor: "text-info"
     },
     { 
       title: "Active Recruiters", 
       value: statsLoading ? "..." : stats?.totalRecruiters.toLocaleString() || "0", 
       icon: Building2, 
-      iconColor: "text-primary",
-      trend: { value: "+8%", positive: true }
+      iconColor: "text-primary"
     },
     { 
       title: "Total Opportunities", 
       value: statsLoading ? "..." : stats?.totalOpportunities.toLocaleString() || "0", 
       icon: TrendingUp, 
-      iconColor: "text-success",
-      trend: { value: "+15%", positive: true }
+      iconColor: "text-success"
     },
     { 
       title: "Pending Reviews", 
       value: statsLoading ? "..." : stats?.pendingReviews.toLocaleString() || "0", 
       icon: AlertTriangle, 
-      iconColor: "text-warning",
-      trend: { value: "-5%", positive: false }
+      iconColor: "text-warning"
     },
   ];
 
@@ -58,7 +54,7 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-muted-foreground">
-            Welcome back, {profile?.full_name || "Admin"}
+            Welcome back, {profile?.full_name || "Admin"} — IIUI SE/IT/CS Micro-Internship Platform
           </p>
         </div>
 

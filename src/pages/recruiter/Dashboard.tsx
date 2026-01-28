@@ -57,7 +57,7 @@ export default function RecruiterDashboard() {
             <h1 className="text-3xl font-bold text-foreground mb-2">
               Welcome, {profile?.full_name || "Recruiter"}
             </h1>
-            <p className="text-muted-foreground">Manage your micro-internship postings</p>
+            <p className="text-muted-foreground">Manage micro-internships for IIUI SE/IT/CS students</p>
           </div>
           <Button className="gap-2" onClick={() => navigate("/recruiter/post")}>
             <Plus className="h-4 w-4" />

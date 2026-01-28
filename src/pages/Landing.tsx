@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Users, Building2, CheckCircle, TrendingUp, Target, BookOpen, Award, Clock, Star } from "lucide-react";
+import { ArrowRight, Users, Building2, CheckCircle, TrendingUp, Target, BookOpen, Award, Clock } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 const stats = [
-  { icon: Users, value: "2,500+", label: "Active Students" },
-  { icon: Building2, value: "150+", label: "Recruiters" },
-  { icon: CheckCircle, value: "5,000+", label: "Tasks Completed" },
-  { icon: TrendingUp, value: "94%", label: "Success Rate" },
+  { icon: Users, label: "Students" },
+  { icon: Building2, label: "Recruiters" },
+  { icon: CheckCircle, label: "Opportunities" },
+  { icon: TrendingUp, label: "Real Experience" },
 ];
 
 const howItWorks = [
@@ -32,24 +32,21 @@ const howItWorks = [
   },
 ];
 
-const testimonials = [
+const benefits = [
   {
-    quote: "μ-intern helped me build real-world experience while studying. I completed 5 micro-internships and landed my dream job!",
-    name: "Ahmed Hassan",
-    role: "CS Student, IIUI",
-    rating: 5,
+    icon: Target,
+    title: "Real Projects",
+    description: "Work on actual industry tasks that matter",
   },
   {
-    quote: "The platform made it easy to connect with industry professionals. Short-term projects fit perfectly with my schedule.",
-    name: "Sarah Khan",
-    role: "IT Student, IIUI",
-    rating: 5,
+    icon: Award,
+    title: "Earn Certificates",
+    description: "Get verified certificates for your portfolio",
   },
   {
-    quote: "Getting feedback from recruiters helped me improve my skills significantly. Highly recommend!",
-    name: "Usman Ali",
-    role: "SE Student, IIUI",
-    rating: 5,
+    icon: Clock,
+    title: "Flexible Schedule",
+    description: "Complete micro-internships around your classes",
   },
 ];
 
@@ -109,15 +106,14 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Features Section */}
       <section className="py-16 border-b">
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
-                <stat.icon className="h-8 w-8 text-primary mx-auto mb-3" />
-                <p className="text-3xl lg:text-4xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+                <stat.icon className="h-10 w-10 text-primary mx-auto mb-3" />
+                <p className="text-lg font-semibold text-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -153,32 +149,23 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Benefits Section */}
       <section className="py-20 bg-muted/30">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Student Success Stories</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Why Choose μ-intern?</h2>
             <p className="text-muted-foreground">
-              Hear from IIUI students who transformed their careers
+              Built specifically for IIUI SE/IT/CS students
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
+            {benefits.map((benefit, index) => (
               <Card key={index} className="shadow-card">
-                <CardContent className="p-6">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-warning text-warning" />
-                    ))}
-                  </div>
-                  <p className="text-foreground mb-6 text-sm leading-relaxed">
-                    "{testimonial.quote}"
-                  </p>
-                  <div className="border-t pt-4">
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  </div>
+                <CardContent className="p-6 text-center">
+                  <benefit.icon className="h-10 w-10 text-primary mx-auto mb-4" />
+                  <h3 className="font-semibold text-foreground mb-2">{benefit.title}</h3>
+                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -190,10 +177,10 @@ export default function Landing() {
       <section className="gradient-cta py-20">
         <div className="container text-center">
           <h2 className="text-3xl font-bold text-primary-foreground mb-4">
-            Ready to Start Your Journey?
+            Ready to Gain Real Experience?
           </h2>
           <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-            Join thousands of IIUI students building their professional portfolios
+            Join IIUI SE/IT/CS students in building professional portfolios through micro-internships
           </p>
           <Link to="/login">
             <Button size="lg" variant="secondary" className="gap-2 bg-background text-foreground hover:bg-background/90">
