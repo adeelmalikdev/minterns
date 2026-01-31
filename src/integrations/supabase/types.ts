@@ -290,7 +290,7 @@ export type Database = {
           student_id: string
           submission_url: string | null
           submitted_at: string
-          task_id: string
+          task_id: string | null
         }
         Insert: {
           application_id: string
@@ -302,7 +302,7 @@ export type Database = {
           student_id: string
           submission_url?: string | null
           submitted_at?: string
-          task_id: string
+          task_id?: string | null
         }
         Update: {
           application_id?: string
@@ -314,7 +314,7 @@ export type Database = {
           student_id?: string
           submission_url?: string | null
           submitted_at?: string
-          task_id?: string
+          task_id?: string | null
         }
         Relationships: [
           {
