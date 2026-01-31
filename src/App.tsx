@@ -14,11 +14,13 @@ import StudentApplications from "./pages/student/Applications";
 import StudentPortfolio from "./pages/student/Portfolio";
 import StudentTasks from "./pages/student/Tasks";
 import StudentMessages from "./pages/student/Messages";
+import StudentNotifications from "./pages/student/Notifications";
 import RecruiterDashboard from "./pages/recruiter/Dashboard";
 import RecruiterPostOpportunity from "./pages/recruiter/PostOpportunity";
 import RecruiterManageApplicants from "./pages/recruiter/ManageApplicants";
 import RecruiterSubmissions from "./pages/recruiter/Submissions";
 import RecruiterMessages from "./pages/recruiter/Messages";
+import RecruiterNotifications from "./pages/recruiter/Notifications";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminActivities from "./pages/admin/Activities";
 import AboutUs from "./pages/AboutUs";
@@ -125,6 +127,14 @@ const AppRoutes = () => (
         </ProtectedRoute>
       } 
     />
+    <Route 
+      path="/student/notifications" 
+      element={
+        <ProtectedRoute allowedRoles={["student"]}>
+          <StudentNotifications />
+        </ProtectedRoute>
+      } 
+    />
     
     {/* Recruiter Routes */}
     <Route 
@@ -164,6 +174,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute allowedRoles={["recruiter"]}>
           <RecruiterMessages />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/recruiter/notifications" 
+      element={
+        <ProtectedRoute allowedRoles={["recruiter"]}>
+          <RecruiterNotifications />
         </ProtectedRoute>
       } 
     />

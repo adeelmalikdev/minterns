@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useUnreadCount } from "@/hooks/useUnreadCount";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,7 +91,12 @@ export function Navbar({ userRole }: NavbarProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          {/* Notifications Bell */}
+          {userRole && (
+            <NotificationBell userRole={userRole} />
+          )}
+
           {/* Messages Icon with Badge */}
           {messagesPath && (
             <Link
