@@ -49,7 +49,7 @@ const opportunitySchema = z.object({
       description: z.string().min(10, "Task description required"),
       due_days: z.number().min(1).max(30),
     })
-  ),
+  ).min(1, "At least one task is required"),
 });
 
 type OpportunityFormData = z.infer<typeof opportunitySchema>;
@@ -455,15 +455,26 @@ export default function PostOpportunity() {
             </Card>
 
             {/* Tasks */}
-            <Card>
+            <Card className={form.formState.errors.tasks?.message ? "border-destructive" : ""}>
               <CardHeader>
-                <CardTitle>Tasks</CardTitle>
+                <CardTitle>Tasks *</CardTitle>
                 <CardDescription>
                   Define the tasks students will complete during this
-                  micro-internship
+                  micro-internship (at least one required)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {fields.length === 0 && (
+                  <div className="text-center py-6 border-2 border-dashed rounded-lg border-muted-foreground/25">
+                    <p className="text-muted-foreground text-sm mb-2">
+                      No tasks added yet
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Add at least one task for students to complete
+                    </p>
+                  </div>
+                )}
+                
                 {fields.map((field, index) => (
                   <Card key={field.id} className="bg-muted/50">
                     <CardContent className="pt-4">
@@ -540,6 +551,12 @@ export default function PostOpportunity() {
                     </CardContent>
                   </Card>
                 ))}
+
+                {form.formState.errors.tasks?.message && (
+                  <p className="text-sm font-medium text-destructive">
+                    {form.formState.errors.tasks.message}
+                  </p>
+                )}
 
                 <Button
                   type="button"
