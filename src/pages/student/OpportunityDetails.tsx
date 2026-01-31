@@ -13,6 +13,7 @@ import { useOpportunityDetails } from "@/hooks/useRecommendedOpportunities";
 import { useHasApplied, useCreateApplication } from "@/hooks/useStudentApplications";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { ResumeUpload } from "@/components/applications/ResumeUpload";
 
 const levelColors = {
   beginner: "bg-success/10 text-success",
@@ -25,6 +26,7 @@ export default function OpportunityDetails() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [coverLetter, setCoverLetter] = useState("");
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: opportunity, isLoading, error } = useOpportunityDetails(id || "");
@@ -38,6 +40,7 @@ export default function OpportunityDetails() {
       await createApplication.mutateAsync({
         opportunityId: id,
         coverLetter: coverLetter || undefined,
+        resumeUrl: resumeUrl || undefined,
       });
       toast({
         title: "Application Submitted!",
@@ -45,6 +48,7 @@ export default function OpportunityDetails() {
       });
       setIsDialogOpen(false);
       setCoverLetter("");
+      setResumeUrl(null);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Failed to submit application";
       toast({
@@ -247,6 +251,14 @@ export default function OpportunityDetails() {
                         <DialogTitle>Apply for {opportunity.title}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label>Resume (Optional)</Label>
+                          <ResumeUpload
+                            onUploadComplete={setResumeUrl}
+                            onRemove={() => setResumeUrl(null)}
+                            currentResume={resumeUrl}
+                          />
+                        </div>
                         <div className="space-y-2">
                           <Label htmlFor="coverLetter">Cover Letter (Optional)</Label>
                           <Textarea
