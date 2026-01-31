@@ -282,6 +282,7 @@ function ApplicantCard({
 }: ApplicantCardProps) {
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [viewFeedbackOpen, setViewFeedbackOpen] = useState(false);
+  const [viewApplicationOpen, setViewApplicationOpen] = useState(false);
   
   const status = statusConfig[application.status as keyof typeof statusConfig] || statusConfig.pending;
   const profile = application.profile;
@@ -295,35 +296,47 @@ function ApplicantCard({
 
   return (
     <>
-      <Card>
+      <Card className="hover:shadow-md transition-shadow">
         <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row lg:items-start gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Avatar & Info */}
-            <div className="flex items-center gap-4 flex-1">
-              <Avatar className="h-12 w-12">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <Avatar className="h-12 w-12 flex-shrink-0">
                 <AvatarImage src={profile?.avatar_url || undefined} />
                 <AvatarFallback>
                   {profile?.full_name?.charAt(0) || "?"}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h3 className="font-semibold text-foreground">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-foreground truncate">
                   {profile?.full_name || "Unknown Student"}
                 </h3>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Mail className="h-3 w-3" />
+                <p className="text-sm text-muted-foreground truncate">
                   {profile?.email || "No email"}
-                </div>
+                </p>
               </div>
             </div>
 
-            {/* Status, Date & Message */}
-            <div className="flex items-center gap-4">
+            {/* Status & Date */}
+            <div className="flex items-center gap-3 flex-shrink-0">
               <Badge className={status.color}>{status.label}</Badge>
-              <span className="text-sm text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
+              <span className="text-sm text-muted-foreground hidden sm:inline">
                 {format(new Date(application.created_at), "MMM d, yyyy")}
               </span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewApplicationOpen(true)}
+                className="gap-1"
+              >
+                <FileText className="h-4 w-4" />
+                View Application
+              </Button>
+
               {(application.status === "accepted" || application.status === "in_progress") && (
                 <Button
                   variant="outline"
@@ -335,30 +348,135 @@ function ApplicantCard({
                   Message
                 </Button>
               )}
+
+              {showActions && application.status === "pending" && (
+                <>
+                  <Button
+                    size="sm"
+                    onClick={onAccept}
+                    disabled={isPending}
+                    className="gap-1"
+                  >
+                    <Check className="h-4 w-4" />
+                    Accept
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={isPending}
+                        className="gap-1"
+                      >
+                        <X className="h-4 w-4" />
+                        Reject
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Reject Application?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to reject this application? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={onReject}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Reject
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Completion Status for Active/Completed */}
+          {showCompletion && (
+            <CompletionStatusCard
+              status={completionStatus}
+              isLoading={completionLoading}
+              onComplete={() => setFeedbackDialogOpen(true)}
+              hasExistingFeedback={!!existingFeedback}
+              onViewFeedback={() => setViewFeedbackOpen(true)}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* View Application Dialog */}
+      <Dialog open={viewApplicationOpen} onOpenChange={setViewApplicationOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Application Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Applicant Info */}
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={profile?.avatar_url || undefined} />
+                <AvatarFallback className="text-xl">
+                  {profile?.full_name?.charAt(0) || "?"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {profile?.full_name || "Unknown Student"}
+                </h3>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                  {profile?.email || "No email"}
+                </div>
+              </div>
             </div>
 
-            {/* Actions */}
+            {/* Application Meta */}
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Status:</span>
+                <Badge className={status.color}>{status.label}</Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span>Applied {format(new Date(application.created_at), "MMMM d, yyyy")}</span>
+              </div>
+            </div>
+
+            {/* Cover Letter */}
+            {application.cover_letter ? (
+              <div className="space-y-2">
+                <h4 className="font-medium text-foreground flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Cover Letter
+                </h4>
+                <div className="p-4 rounded-lg border bg-muted/30">
+                  <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                    {application.cover_letter}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 rounded-lg border border-dashed text-center">
+                <p className="text-sm text-muted-foreground">No cover letter provided</p>
+              </div>
+            )}
+
+            {/* Actions in Dialog */}
             {showActions && application.status === "pending" && (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={onAccept}
-                  disabled={isPending}
-                  className="gap-1"
-                >
+              <div className="flex gap-2 pt-4 border-t">
+                <Button onClick={onAccept} disabled={isPending} className="gap-1 flex-1">
                   <Check className="h-4 w-4" />
-                  Accept
+                  Accept Application
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      disabled={isPending}
-                      className="gap-1"
-                    >
+                    <Button variant="destructive" disabled={isPending} className="gap-1 flex-1">
                       <X className="h-4 w-4" />
-                      Reject
+                      Reject Application
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -382,30 +500,8 @@ function ApplicantCard({
               </div>
             )}
           </div>
-
-          {/* Cover Letter */}
-          {application.cover_letter && (
-            <div className="mt-4 pt-4 border-t">
-              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                <FileText className="h-3 w-3" />
-                Cover Letter
-              </p>
-              <p className="text-sm text-foreground">{application.cover_letter}</p>
-            </div>
-          )}
-
-          {/* Completion Status for Active/Completed */}
-          {showCompletion && (
-            <CompletionStatusCard
-              status={completionStatus}
-              isLoading={completionLoading}
-              onComplete={() => setFeedbackDialogOpen(true)}
-              hasExistingFeedback={!!existingFeedback}
-              onViewFeedback={() => setViewFeedbackOpen(true)}
-            />
-          )}
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
 
       {/* Feedback Form Dialog */}
       <FeedbackFormDialog
