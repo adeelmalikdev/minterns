@@ -475,12 +475,12 @@ function ApplicantCard({
             </div>
 
             {/* Resume */}
-            {application.resume_url && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-foreground flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Resume
-                </h4>
+            <div className="space-y-2">
+              <h4 className="font-medium text-foreground flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Resume
+              </h4>
+              {application.resume_url ? (
                 <div className="p-4 rounded-lg border bg-muted/30 flex items-center justify-between">
                   <span className="text-sm text-foreground">Resume.pdf</span>
                   {loadingResume ? (
@@ -497,8 +497,12 @@ function ApplicantCard({
                     </Button>
                   ) : null}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="p-4 rounded-lg border border-dashed text-center">
+                  <p className="text-sm text-muted-foreground">No resume attached</p>
+                </div>
+              )}
+            </div>
 
             {/* Cover Letter */}
             {application.cover_letter ? (
