@@ -1,9 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, MessageSquare } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnreadCount } from "@/hooks/useUnreadCount";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +41,7 @@ export function Navbar({ userRole }: NavbarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
+  const unreadCount = useUnreadCount();
   
   const links = userRole === "student" 
     ? studentLinks 
@@ -52,6 +55,12 @@ export function Navbar({ userRole }: NavbarProps) {
     await signOut();
     navigate("/");
   };
+
+  const messagesPath = userRole === "student" 
+    ? "/student/messages" 
+    : userRole === "recruiter" 
+    ? "/recruiter/messages" 
+    : null;
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -82,6 +91,27 @@ export function Navbar({ userRole }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Messages Icon with Badge */}
+          {messagesPath && (
+            <Link
+              to={messagesPath}
+              className={cn(
+                "relative p-2 rounded-md transition-colors hover:bg-muted",
+                location.pathname === messagesPath && "bg-muted"
+              )}
+            >
+              <MessageSquare className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <Badge
+                  variant="default"
+                  className="absolute -top-1 -right-1 h-5 min-w-5 p-0 flex items-center justify-center text-xs"
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </Badge>
+              )}
+            </Link>
+          )}
+
           {userRole ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
