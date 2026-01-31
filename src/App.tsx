@@ -16,6 +16,7 @@ import StudentTasks from "./pages/student/Tasks";
 import RecruiterDashboard from "./pages/recruiter/Dashboard";
 import RecruiterPostOpportunity from "./pages/recruiter/PostOpportunity";
 import RecruiterManageApplicants from "./pages/recruiter/ManageApplicants";
+import RecruiterSubmissions from "./pages/recruiter/Submissions";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminActivities from "./pages/admin/Activities";
 import AboutUs from "./pages/AboutUs";
@@ -137,6 +138,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute allowedRoles={["recruiter"]}>
           <RecruiterManageApplicants />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/recruiter/submissions" 
+      element={
+        <ProtectedRoute allowedRoles={["recruiter"]}>
+          <RecruiterSubmissions />
         </ProtectedRoute>
       } 
     />
