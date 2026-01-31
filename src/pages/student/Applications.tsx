@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FileText, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
@@ -35,6 +35,19 @@ export default function StudentApplications() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("all");
+  const [expandedLetters, setExpandedLetters] = useState<Set<string>>(new Set());
+
+  const toggleCoverLetter = useCallback((applicationId: string) => {
+    setExpandedLetters(prev => {
+      const next = new Set(prev);
+      if (next.has(applicationId)) {
+        next.delete(applicationId);
+      } else {
+        next.add(applicationId);
+      }
+      return next;
+    });
+  }, []);
 
   const { data: applications, isLoading, error } = useStudentApplications(
     activeTab === "all" ? undefined : activeTab
@@ -221,9 +234,17 @@ export default function StudentApplications() {
                     {application.cover_letter && (
                       <div className="mt-4 pt-4 border-t">
                         <p className="text-xs text-muted-foreground mb-1">Cover Letter:</p>
-                        <p className="text-sm text-foreground line-clamp-2">
+                        <p className={`text-sm text-foreground whitespace-pre-wrap ${!expandedLetters.has(application.id) ? "line-clamp-2" : ""}`}>
                           {application.cover_letter}
                         </p>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="p-0 h-auto mt-1 text-xs"
+                          onClick={() => toggleCoverLetter(application.id)}
+                        >
+                          {expandedLetters.has(application.id) ? "Show less" : "Show more"}
+                        </Button>
                       </div>
                     )}
                   </CardContent>
