@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Calendar, FileText, Check, X, Star, MessageSquare } from "lucide-react";
+import { ArrowLeft, User, Mail, Calendar, FileText, Check, X, MessageSquare, Download, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -15,6 +15,7 @@ import { useApplicationCompletionStatus, useFeedbackForApplication } from "@/hoo
 import { useToast } from "@/hooks/use-toast";
 import { FeedbackFormDialog } from "@/components/recruiter/FeedbackFormDialog";
 import { CompletionStatusCard } from "@/components/recruiter/CompletionStatus";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -250,6 +251,7 @@ interface ApplicantCardProps {
     id: string;
     status: string;
     cover_letter: string | null;
+    resume_url: string | null;
     created_at: string;
     profile: {
       full_name: string | null;
@@ -283,6 +285,8 @@ function ApplicantCard({
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [viewFeedbackOpen, setViewFeedbackOpen] = useState(false);
   const [viewApplicationOpen, setViewApplicationOpen] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const [loadingResume, setLoadingResume] = useState(false);
   
   const status = statusConfig[application.status as keyof typeof statusConfig] || statusConfig.pending;
   const profile = application.profile;
@@ -293,6 +297,30 @@ function ApplicantCard({
   );
   
   const { data: existingFeedback } = useFeedbackForApplication(application.id);
+
+  // Fetch resume URL when dialog opens
+  useEffect(() => {
+    const fetchResumeUrl = async () => {
+      if (viewApplicationOpen && application.resume_url) {
+        setLoadingResume(true);
+        try {
+          const { data, error } = await supabase.storage
+            .from("resumes")
+            .createSignedUrl(application.resume_url, 3600);
+          
+          if (!error && data) {
+            setResumeUrl(data.signedUrl);
+          }
+        } catch {
+          // Silently fail
+        } finally {
+          setLoadingResume(false);
+        }
+      }
+    };
+
+    fetchResumeUrl();
+  }, [viewApplicationOpen, application.resume_url]);
 
   return (
     <>
@@ -445,6 +473,32 @@ function ApplicantCard({
                 <span>Applied {format(new Date(application.created_at), "MMMM d, yyyy")}</span>
               </div>
             </div>
+
+            {/* Resume */}
+            {application.resume_url && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-foreground flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Resume
+                </h4>
+                <div className="p-4 rounded-lg border bg-muted/30 flex items-center justify-between">
+                  <span className="text-sm text-foreground">Resume.pdf</span>
+                  {loadingResume ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : resumeUrl ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(resumeUrl, "_blank")}
+                      className="gap-1"
+                    >
+                      <Download className="h-4 w-4" />
+                      View Resume
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            )}
 
             {/* Cover Letter */}
             {application.cover_letter ? (
