@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Calendar, FileText, Check, X, Star } from "lucide-react";
+import { ArrowLeft, User, Mail, Calendar, FileText, Check, X, Star, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -317,13 +317,24 @@ function ApplicantCard({
               </div>
             </div>
 
-            {/* Status & Date */}
+            {/* Status, Date & Message */}
             <div className="flex items-center gap-4">
               <Badge className={status.color}>{status.label}</Badge>
               <span className="text-sm text-muted-foreground flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 {format(new Date(application.created_at), "MMM d, yyyy")}
               </span>
+              {(application.status === "accepted" || application.status === "in_progress") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.href = `/recruiter/messages?app=${application.id}`}
+                  className="gap-1"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  Message
+                </Button>
+              )}
             </div>
 
             {/* Actions */}

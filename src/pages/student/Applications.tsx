@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { FileText, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -196,12 +196,23 @@ export default function StudentApplications() {
                         )}
 
                         {(application.status === "accepted" || application.status === "in_progress") && (
-                          <Button
-                            size="sm"
-                            onClick={() => navigate("/student/tasks")}
-                          >
-                            View Tasks
-                          </Button>
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => navigate(`/student/messages?app=${application.id}`)}
+                              className="gap-1"
+                            >
+                              <MessageSquare className="h-4 w-4" />
+                              Message
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => navigate("/student/tasks")}
+                            >
+                              View Tasks
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
