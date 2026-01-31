@@ -134,9 +134,20 @@ export default function StudentDashboard() {
 
             {/* Ongoing Tasks */}
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold">Ongoing Tasks</CardTitle>
-                <p className="text-sm text-muted-foreground">Track your active micro-internship tasks</p>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <div>
+                  <CardTitle className="text-lg font-semibold">Ongoing Tasks</CardTitle>
+                  <p className="text-sm text-muted-foreground">Track your active micro-internship tasks</p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-1 text-muted-foreground hover:text-foreground"
+                  onClick={() => navigate("/student/tasks")}
+                >
+                  View All
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 {tasksLoading ? (
