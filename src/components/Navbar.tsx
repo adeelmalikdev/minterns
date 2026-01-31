@@ -67,7 +67,7 @@ export function Navbar({ userRole }: NavbarProps) {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-8">
           <Link to={userRole ? `/${userRole}/dashboard` : "/"}>
-            <Logo showSubtitle={!!userRole} />
+            <Logo />
           </Link>
           
           {userRole && (
