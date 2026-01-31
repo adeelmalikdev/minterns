@@ -69,9 +69,10 @@ export function useCreateApplication() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["student-applications"] });
       queryClient.invalidateQueries({ queryKey: ["student-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["has-applied", undefined, variables.opportunityId] });
     },
   });
 }
