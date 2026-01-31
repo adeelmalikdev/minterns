@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Building2, Users, CheckCircle, Plus, FileText, TrendingUp } from "lucide-react";
+import { Building2, Users, CheckCircle, Plus, FileText, TrendingUp, ClipboardCheck, ArrowRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecruiterStats, useRecruiterOpportunities, useRecruiterApplicationTrends } from "@/hooks/useRecruiterData";
+import { usePendingSubmissionsCount } from "@/hooks/useRecruiterSubmissions";
 
 export default function RecruiterDashboard() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function RecruiterDashboard() {
   const { data: stats, isLoading: statsLoading } = useRecruiterStats();
   const { data: opportunities, isLoading: oppsLoading } = useRecruiterOpportunities();
   const { data: chartData, isLoading: chartLoading } = useRecruiterApplicationTrends();
+  const { data: pendingCount } = usePendingSubmissionsCount();
 
   const statsData = [
     { 
@@ -35,6 +37,12 @@ export default function RecruiterDashboard() {
       value: statsLoading ? "..." : (stats?.totalOpportunities || 0), 
       icon: TrendingUp, 
       iconColor: "text-accent" 
+    },
+    { 
+      title: "Pending Reviews", 
+      value: pendingCount ?? 0, 
+      icon: ClipboardCheck, 
+      iconColor: "text-warning" 
     },
     { 
       title: "Completed Tasks", 
@@ -116,8 +124,20 @@ export default function RecruiterDashboard() {
 
           {/* Active Postings */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg font-semibold">Active Postings</CardTitle>
+              {(pendingCount ?? 0) > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => navigate("/recruiter/submissions")}
+                >
+                  <ClipboardCheck className="h-4 w-4" />
+                  {pendingCount} Pending Reviews
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               {oppsLoading ? (
