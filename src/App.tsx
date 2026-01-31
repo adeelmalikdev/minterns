@@ -17,6 +17,8 @@ import RecruiterPostOpportunity from "./pages/recruiter/PostOpportunity";
 import RecruiterManageApplicants from "./pages/recruiter/ManageApplicants";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminActivities from "./pages/admin/Activities";
+import AboutUs from "./pages/AboutUs";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -147,6 +149,10 @@ const AppRoutes = () => (
         </ProtectedRoute>
       } 
     />
+    
+    {/* Public Pages */}
+    <Route path="/about" element={<AboutUs />} />
+    <Route path="/feedback" element={<Feedback />} />
     
     {/* Catch-all */}
     <Route path="*" element={<NotFound />} />

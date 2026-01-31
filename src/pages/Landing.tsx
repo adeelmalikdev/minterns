@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Users, Building2, CheckCircle, TrendingUp, Target, BookOpen, Award, Clock } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -188,46 +189,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-foreground text-background py-16">
-        <div className="container">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <h3 className="text-xl font-bold mb-4">μ-intern</h3>
-              <p className="text-sm text-background/70">
-                Empowering IIUI students with micro-internship opportunities
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">For Students</h4>
-              <ul className="space-y-2 text-sm text-background/70">
-                <li><a href="#" className="hover:text-background">Browse Opportunities</a></li>
-                <li><a href="#" className="hover:text-background">Build Portfolio</a></li>
-                <li><a href="#" className="hover:text-background">Get Certified</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">For Recruiters</h4>
-              <ul className="space-y-2 text-sm text-background/70">
-                <li><a href="#" className="hover:text-background">Post Opportunities</a></li>
-                <li><a href="#" className="hover:text-background">Find Talent</a></li>
-                <li><a href="#" className="hover:text-background">Give Feedback</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
-              <ul className="space-y-2 text-sm text-background/70">
-                <li><a href="#" className="hover:text-background">About IIUI</a></li>
-                <li><a href="#" className="hover:text-background">Contact Us</a></li>
-                <li><a href="#" className="hover:text-background">Support</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-background/20 pt-8 text-center text-sm text-background/60">
-            © 2026 μ-intern Platform | All Rights Reserved
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
