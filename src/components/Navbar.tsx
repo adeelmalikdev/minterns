@@ -20,6 +20,7 @@ const studentLinks = [
   { href: "/student/dashboard", label: "Dashboard" },
   { href: "/student/opportunities", label: "Opportunities" },
   { href: "/student/applications", label: "Applications" },
+  { href: "/student/tasks", label: "Tasks" },
   { href: "/student/portfolio", label: "Portfolio" },
 ];
 

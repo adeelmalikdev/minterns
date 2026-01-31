@@ -12,6 +12,7 @@ import StudentOpportunities from "./pages/student/Opportunities";
 import StudentOpportunityDetails from "./pages/student/OpportunityDetails";
 import StudentApplications from "./pages/student/Applications";
 import StudentPortfolio from "./pages/student/Portfolio";
+import StudentTasks from "./pages/student/Tasks";
 import RecruiterDashboard from "./pages/recruiter/Dashboard";
 import RecruiterPostOpportunity from "./pages/recruiter/PostOpportunity";
 import RecruiterManageApplicants from "./pages/recruiter/ManageApplicants";
@@ -102,6 +103,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute allowedRoles={["student"]}>
           <StudentPortfolio />
+        </ProtectedRoute>
+      } 
+    />
+    <Route 
+      path="/student/tasks" 
+      element={
+        <ProtectedRoute allowedRoles={["student"]}>
+          <StudentTasks />
         </ProtectedRoute>
       } 
     />
