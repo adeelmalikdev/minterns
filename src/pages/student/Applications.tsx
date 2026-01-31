@@ -230,6 +230,8 @@ export default function StudentApplications() {
                         applicationId={application.id}
                         opportunityId={application.opportunity_id}
                         applicationCreatedAt={application.created_at}
+                        companyName={application.opportunity.company_name}
+                        opportunityTitle={application.opportunity.title}
                       />
                     )}
 
