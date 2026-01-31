@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { FileText, Clock, CheckCircle, XCircle, AlertCircle, ExternalLink, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { Navbar } from "@/components/Navbar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Footer } from "@/components/Footer";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InlineTaskList } from "@/components/applications/InlineTaskList";
 import { useStudentApplications, useWithdrawApplication } from "@/hooks/useStudentApplications";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -79,10 +81,10 @@ export default function StudentApplications() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-muted/30 flex flex-col">
       <Navbar userRole="student" />
 
-      <main className="container py-8">
+      <main className="container py-8 flex-1">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
@@ -209,26 +211,27 @@ export default function StudentApplications() {
                         )}
 
                         {(application.status === "accepted" || application.status === "in_progress") && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => navigate(`/student/messages?app=${application.id}`)}
-                              className="gap-1"
-                            >
-                              <MessageSquare className="h-4 w-4" />
-                              Message
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => navigate("/student/tasks")}
-                            >
-                              View Tasks
-                            </Button>
-                          </>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/student/messages?app=${application.id}`)}
+                            className="gap-1"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                            Message
+                          </Button>
                         )}
                       </div>
                     </div>
+
+                    {/* Inline Task List for Active Applications */}
+                    {(application.status === "accepted" || application.status === "in_progress") && (
+                      <InlineTaskList
+                        applicationId={application.id}
+                        opportunityId={application.opportunity_id}
+                        applicationCreatedAt={application.created_at}
+                      />
+                    )}
 
                     {/* Cover Letter Preview */}
                     {application.cover_letter && (
@@ -267,6 +270,8 @@ export default function StudentApplications() {
           </Card>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 }
