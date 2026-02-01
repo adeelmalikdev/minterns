@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { GraduationCap, Building2, Shield, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -16,6 +16,10 @@ import { SkipLink } from "@/components/accessibility/SkipLink";
 import { checkRateLimit, getRateLimitMessage } from "@/lib/rateLimit";
 import { signInWithGoogle } from "@/lib/googleAuth";
 import { LiveRegion } from "@/components/accessibility/LiveRegion";
+import { verifyRecaptcha } from "@/lib/recaptcha";
+
+// reCAPTCHA v2 Site Key
+const RECAPTCHA_SITE_KEY = "6LcWcl0sAAAAAL3Vq64KS_sNGEuKRXDEKL51SIqU";
 
 type UserRole = "student" | "recruiter" | "admin";
 
@@ -58,6 +62,8 @@ export default function Login() {
   const initialRole = (searchParams.get("role") as UserRole) || "student";
   const { signIn, signUp, role: userRole } = useAuth();
   const { toast } = useToast();
+  const recaptchaRef = useRef<HTMLDivElement>(null);
+  const recaptchaWidgetId = useRef<number | null>(null);
   
   const [role, setRole] = useState<UserRole>(initialRole);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -67,6 +73,49 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+
+  // Load reCAPTCHA script
+  useEffect(() => {
+    const loadRecaptcha = () => {
+      if (window.grecaptcha && recaptchaRef.current && recaptchaWidgetId.current === null) {
+        try {
+          recaptchaWidgetId.current = window.grecaptcha.render(recaptchaRef.current, {
+            sitekey: RECAPTCHA_SITE_KEY,
+            callback: (token: string) => setRecaptchaToken(token),
+            "expired-callback": () => setRecaptchaToken(null),
+            "error-callback": () => setRecaptchaToken(null),
+          });
+          setRecaptchaLoaded(true);
+        } catch (e) {
+          // Widget already rendered
+          setRecaptchaLoaded(true);
+        }
+      }
+    };
+
+    // Check if script is already loaded
+    if (window.grecaptcha) {
+      window.grecaptcha.ready(loadRecaptcha);
+    } else {
+      // Load the script
+      const script = document.createElement("script");
+      script.src = "https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit";
+      script.async = true;
+      script.defer = true;
+      
+      (window as any).onRecaptchaLoad = () => {
+        window.grecaptcha.ready(loadRecaptcha);
+      };
+      
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      delete (window as any).onRecaptchaLoad;
+    };
+  }, []);
 
   const config = roleConfig[role];
 
@@ -119,6 +168,34 @@ export default function Login() {
         title: "Weak password",
         description: "Please meet all password requirements before signing up.",
       });
+      return;
+    }
+
+    // Verify reCAPTCHA (required for signup and login)
+    if (!recaptchaToken) {
+      setFormError("Please complete the CAPTCHA verification.");
+      toast({
+        variant: "destructive",
+        title: "CAPTCHA required",
+        description: "Please check the 'I'm not a robot' box.",
+      });
+      return;
+    }
+
+    // Verify reCAPTCHA token with backend
+    const captchaResult = await verifyRecaptcha(recaptchaToken);
+    if (!captchaResult.verified) {
+      setFormError("CAPTCHA verification failed. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Verification failed",
+        description: captchaResult.error || "Please complete the CAPTCHA again.",
+      });
+      // Reset reCAPTCHA
+      if (recaptchaWidgetId.current !== null && window.grecaptcha) {
+        window.grecaptcha.reset(recaptchaWidgetId.current);
+      }
+      setRecaptchaToken(null);
       return;
     }
     
@@ -178,6 +255,11 @@ export default function Login() {
       });
     } finally {
       setIsLoading(false);
+      // Reset reCAPTCHA after submission
+      if (recaptchaWidgetId.current !== null && window.grecaptcha) {
+        window.grecaptcha.reset(recaptchaWidgetId.current);
+      }
+      setRecaptchaToken(null);
     }
   };
 
@@ -266,7 +348,19 @@ export default function Login() {
                 )}
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
+              {/* reCAPTCHA Widget */}
+              <div className="flex justify-center">
+                <div 
+                  ref={recaptchaRef} 
+                  aria-label="reCAPTCHA verification"
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isLoading || isGoogleLoading || !recaptchaToken}
+              >
                 {isLoading 
                   ? (isSignUp ? "Creating account..." : "Signing in...") 
                   : (isSignUp ? config.signupButtonText : config.buttonText)}
