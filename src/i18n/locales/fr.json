@@ -1,0 +1,92 @@
+{
+  "common": {
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "next": "Suivant",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "apply": "Appliquer",
+    "clear": "Effacer",
+    "viewAll": "Voir Tout",
+    "seeMore": "Voir Plus",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "signIn": "Se Connecter",
+    "signUp": "S'inscrire",
+    "signOut": "Déconnexion",
+    "forgotPassword": "Mot de passe oublié?",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "fullName": "Nom Complet",
+    "welcomeBack": "Bon retour!",
+    "createAccount": "Créer un Compte",
+    "alreadyHaveAccount": "Vous avez déjà un compte?",
+    "dontHaveAccount": "Vous n'avez pas de compte?",
+    "orContinueWith": "ou continuer avec"
+  },
+  "dashboard": {
+    "welcome": "Bienvenue, {{name}}!",
+    "applications": "Vos Candidatures",
+    "tasks": "Vos Tâches",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "opportunities": "Opportunités",
+    "portfolio": "Portfolio"
+  },
+  "opportunities": {
+    "title": "Opportunités",
+    "browse": "Parcourir les Opportunités",
+    "apply": "Postuler Maintenant",
+    "applied": "Postulé",
+    "deadline": "Date Limite",
+    "duration": "Durée",
+    "hours": "heures",
+    "skills": "Compétences Requises",
+    "remote": "À Distance",
+    "onsite": "Sur Place",
+    "level": "Niveau",
+    "beginner": "Débutant",
+    "intermediate": "Intermédiaire",
+    "advanced": "Avancé"
+  },
+  "applications": {
+    "title": "Mes Candidatures",
+    "status": "Statut",
+    "pending": "En Attente",
+    "accepted": "Acceptée",
+    "rejected": "Refusée",
+    "inProgress": "En Cours",
+    "completed": "Terminée",
+    "withdrawn": "Retirée",
+    "coverLetter": "Lettre de Motivation",
+    "resume": "CV"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": "Profil",
+    "security": "Sécurité",
+    "preferences": "Préférences",
+    "data": "Données",
+    "theme": "Thème",
+    "language": "Langue",
+    "twoFactor": "Authentification à Deux Facteurs",
+    "exportData": "Exporter Mes Données",
+    "deleteAccount": "Supprimer le Compte"
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "unauthorized": "Vous n'êtes pas autorisé à effectuer cette action.",
+    "notFound": "La ressource demandée n'a pas été trouvée.",
+    "offline": "Vous semblez être hors ligne."
+  }
+}

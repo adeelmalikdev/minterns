@@ -253,27 +253,42 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          deletion_requested_at: string | null
+          deletion_scheduled_for: string | null
           email: string
           full_name: string | null
           id: string
+          is_deactivated: boolean | null
+          language_preference: string | null
+          theme_preference: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          deletion_requested_at?: string | null
+          deletion_scheduled_for?: string | null
           email: string
           full_name?: string | null
           id?: string
+          is_deactivated?: boolean | null
+          language_preference?: string | null
+          theme_preference?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          deletion_requested_at?: string | null
+          deletion_scheduled_for?: string | null
           email?: string
           full_name?: string | null
           id?: string
+          is_deactivated?: boolean | null
+          language_preference?: string | null
+          theme_preference?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -374,6 +389,36 @@ export type Database = {
           },
         ]
       }
+      user_2fa: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string | null
+          id: string
+          totp_enabled: boolean | null
+          totp_secret: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          totp_enabled?: boolean | null
+          totp_secret?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string | null
+          id?: string
+          totp_enabled?: boolean | null
+          totp_secret?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -400,6 +445,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancel_account_deletion: { Args: never; Returns: undefined }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]

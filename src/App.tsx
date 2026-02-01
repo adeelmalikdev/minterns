@@ -32,6 +32,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminActivities from "./pages/admin/Activities";
 import AboutUs from "./pages/AboutUs";
 import Feedback from "./pages/Feedback";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 // Initialize error tracking on app load
@@ -220,6 +221,16 @@ const AppRoutes = () => (
     {/* Public Pages */}
     <Route path="/about" element={<AboutUs />} />
     <Route path="/feedback" element={<Feedback />} />
+    
+    {/* Settings - Available to all authenticated users */}
+    <Route 
+      path="/settings" 
+      element={
+        <ProtectedRoute>
+          <Settings />
+        </ProtectedRoute>
+      } 
+    />
     
     {/* Catch-all */}
     <Route path="*" element={<NotFound />} />
