@@ -1,43 +1,64 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 
-// reCAPTCHA v2 Site Key (publishable)
+// reCAPTCHA v2 Checkbox Site Key (publishable)
+// This key is for reCAPTCHA v2 checkbox - NOT invisible or v3
 const RECAPTCHA_SITE_KEY = "6LcWcl0sAAAAAL3Vq64KS_sNGEuKRXDEKL51SIqU";
 
 declare global {
   interface Window {
     grecaptcha: {
       ready: (callback: () => void) => void;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
       render: (container: string | HTMLElement, options: object) => number;
       reset: (widgetId?: number) => void;
       getResponse: (widgetId?: number) => string;
+      execute: (widgetId?: number) => void;
     };
     onRecaptchaLoad?: () => void;
   }
 }
 
 interface UseReCaptchaReturn {
-  executeRecaptcha: () => Promise<string | null>;
+  renderRecaptcha: (containerId: string) => void;
+  getToken: () => string | null;
   resetRecaptcha: () => void;
   isLoaded: boolean;
+  isVerified: boolean;
 }
 
 let scriptLoaded = false;
 let loadPromise: Promise<void> | null = null;
 
 function loadRecaptchaScript(): Promise<void> {
-  if (scriptLoaded) return Promise.resolve();
+  if (scriptLoaded && window.grecaptcha) return Promise.resolve();
   if (loadPromise) return loadPromise;
 
   loadPromise = new Promise((resolve) => {
+    // Check if script already exists
+    const existingScript = document.querySelector('script[src*="recaptcha/api.js"]');
+    if (existingScript) {
+      if (window.grecaptcha) {
+        scriptLoaded = true;
+        resolve();
+      } else {
+        existingScript.addEventListener('load', () => {
+          scriptLoaded = true;
+          resolve();
+        });
+      }
+      return;
+    }
+
     const script = document.createElement("script");
-    script.src = `https://www.google.com/recaptcha/api.js?render=explicit`;
+    // Use explicit render mode for v2 checkbox
+    script.src = "https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit";
     script.async = true;
     script.defer = true;
-    script.onload = () => {
+    
+    window.onRecaptchaLoad = () => {
       scriptLoaded = true;
       resolve();
     };
+    
     document.head.appendChild(script);
   });
 
@@ -46,60 +67,61 @@ function loadRecaptchaScript(): Promise<void> {
 
 export function useReCaptcha(): UseReCaptchaReturn {
   const widgetIdRef = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const resolverRef = useRef<((token: string) => void) | null>(null);
+  const [isLoaded, setIsLoaded] = useState(scriptLoaded);
+  const [isVerified, setIsVerified] = useState(false);
 
-  const executeRecaptcha = useCallback(async (): Promise<string | null> => {
-    try {
-      await loadRecaptchaScript();
+  useEffect(() => {
+    loadRecaptchaScript().then(() => {
+      setIsLoaded(true);
+    });
+  }, []);
 
-      return new Promise((resolve) => {
+  const renderRecaptcha = useCallback((containerId: string) => {
+    if (!isLoaded || !window.grecaptcha) {
+      loadRecaptchaScript().then(() => {
+        setIsLoaded(true);
+        // Re-render after load
         window.grecaptcha.ready(() => {
-          // Create hidden container if needed
-          if (!containerRef.current) {
-            containerRef.current = document.createElement("div");
-            containerRef.current.style.display = "none";
-            document.body.appendChild(containerRef.current);
-          }
-
-          // Render widget if not already rendered
-          if (widgetIdRef.current === null) {
-            resolverRef.current = resolve;
-            widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
+          const container = document.getElementById(containerId);
+          if (container && widgetIdRef.current === null) {
+            widgetIdRef.current = window.grecaptcha.render(containerId, {
               sitekey: RECAPTCHA_SITE_KEY,
-              size: "invisible",
-              callback: (token: string) => {
-                if (resolverRef.current) {
-                  resolverRef.current(token);
-                  resolverRef.current = null;
-                }
-              },
-              "error-callback": () => {
-                resolve(null);
-              },
+              callback: () => setIsVerified(true),
+              "expired-callback": () => setIsVerified(false),
+              "error-callback": () => setIsVerified(false),
             });
-          } else {
-            resolverRef.current = resolve;
-            window.grecaptcha.reset(widgetIdRef.current);
-          }
-
-          // Execute the challenge
-          const checkbox = containerRef.current?.querySelector("iframe");
-          if (checkbox) {
-            checkbox.click();
           }
         });
       });
-    } catch (error) {
-      console.error("reCAPTCHA error:", error);
-      return null;
+      return;
     }
+
+    window.grecaptcha.ready(() => {
+      const container = document.getElementById(containerId);
+      if (container && widgetIdRef.current === null) {
+        widgetIdRef.current = window.grecaptcha.render(containerId, {
+          sitekey: RECAPTCHA_SITE_KEY,
+          callback: () => setIsVerified(true),
+          "expired-callback": () => setIsVerified(false),
+          "error-callback": () => setIsVerified(false),
+        });
+      }
+    });
+  }, [isLoaded]);
+
+  const getToken = useCallback((): string | null => {
+    if (widgetIdRef.current !== null && window.grecaptcha) {
+      const response = window.grecaptcha.getResponse(widgetIdRef.current);
+      return response || null;
+    }
+    return null;
   }, []);
 
   const resetRecaptcha = useCallback(() => {
-    if (widgetIdRef.current !== null) {
+    if (widgetIdRef.current !== null && window.grecaptcha) {
       try {
         window.grecaptcha.reset(widgetIdRef.current);
+        setIsVerified(false);
       } catch (e) {
         // Ignore reset errors
       }
@@ -107,9 +129,11 @@ export function useReCaptcha(): UseReCaptchaReturn {
   }, []);
 
   return {
-    executeRecaptcha,
+    renderRecaptcha,
+    getToken,
     resetRecaptcha,
-    isLoaded: scriptLoaded,
+    isLoaded,
+    isVerified,
   };
 }
 
