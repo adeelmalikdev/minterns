@@ -58,7 +58,7 @@ export default function RecruiterDashboard() {
     <div className="min-h-screen bg-muted/30">
       <Navbar userRole="recruiter" />
 
-      <main className="container py-8">
+      <main id="main-content" className="container py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>

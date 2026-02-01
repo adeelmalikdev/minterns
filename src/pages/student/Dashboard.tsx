@@ -66,7 +66,7 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-muted/30">
       <Navbar userRole="student" />
 
-      <main className="container py-8">
+      <main id="main-content" className="container py-8">
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
