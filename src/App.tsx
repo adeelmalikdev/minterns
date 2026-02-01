@@ -10,6 +10,7 @@ import { SkipLink } from "@/components/accessibility/SkipLink";
 import { SessionTimeoutWarning } from "@/components/SessionTimeoutWarning";
 import { CookieConsent } from "@/components/CookieConsent";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { A11yChecker } from "@/components/accessibility/A11yChecker";
 import { initializeErrorTracking } from "@/lib/sentry";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -233,6 +234,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          {import.meta.env.DEV && <A11yChecker />}
           <OfflineIndicator />
           <AppRoutes />
           <CookieConsent />
