@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SkipLink } from "@/components/accessibility/SkipLink";
+import { SessionTimeoutWarning } from "@/components/SessionTimeoutWarning";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/student/Dashboard";
@@ -66,9 +68,12 @@ function LoginRedirect() {
 }
 
 const AppRoutes = () => (
-  <Routes>
-    <Route path="/" element={<AuthenticatedRedirect />} />
-    <Route path="/login" element={<LoginRedirect />} />
+  <>
+    <SkipLink />
+    <SessionTimeoutWarning />
+    <Routes>
+      <Route path="/" element={<AuthenticatedRedirect />} />
+      <Route path="/login" element={<LoginRedirect />} />
     
     {/* Student Routes */}
     <Route 
@@ -211,6 +216,7 @@ const AppRoutes = () => (
     {/* Catch-all */}
     <Route path="*" element={<NotFound />} />
   </Routes>
+  </>
 );
 
 const App = () => (

@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { PasswordStrength, isPasswordValid } from "@/components/ui/password-strength";
+import { SkipLink } from "@/components/accessibility/SkipLink";
 
 type UserRole = "student" | "recruiter" | "admin";
 
@@ -64,6 +66,17 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate password strength on signup
+    if (isSignUp && !isPasswordValid(password)) {
+      toast({
+        variant: "destructive",
+        title: "Weak password",
+        description: "Please meet all password requirements before signing up.",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -110,6 +123,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen gradient-hero flex flex-col">
+      <SkipLink href="#login-form" />
       <div className="container py-6">
         <Link to="/">
           <Logo />
@@ -144,7 +158,7 @@ export default function Login() {
               </TabsList>
             </Tabs>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" id="login-form">
               {isSignUp && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
@@ -181,9 +195,15 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={isSignUp ? 8 : 6}
                   className="bg-muted"
+                  aria-describedby={isSignUp ? "password-requirements" : undefined}
                 />
+                {isSignUp && (
+                  <div id="password-requirements">
+                    <PasswordStrength password={password} />
+                  </div>
+                )}
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
