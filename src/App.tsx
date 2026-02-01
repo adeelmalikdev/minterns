@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,9 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SkipLink } from "@/components/accessibility/SkipLink";
 import { SessionTimeoutWarning } from "@/components/SessionTimeoutWarning";
+import { CookieConsent } from "@/components/CookieConsent";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { initializeErrorTracking } from "@/lib/sentry";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/student/Dashboard";
@@ -28,6 +32,9 @@ import AdminActivities from "./pages/admin/Activities";
 import AboutUs from "./pages/AboutUs";
 import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
+
+// Initialize error tracking on app load
+initializeErrorTracking();
 
 const queryClient = new QueryClient();
 
@@ -226,7 +233,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <OfflineIndicator />
           <AppRoutes />
+          <CookieConsent />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
