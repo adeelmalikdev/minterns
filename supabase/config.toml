@@ -1,1 +1,16 @@
 project_id = "zjwjbpovkkyhhfbtswui"
+
+[functions.rate-limit]
+verify_jwt = false
+
+[functions.verify-recaptcha]
+verify_jwt = false
+
+[functions.totp-setup]
+verify_jwt = false
+
+[functions.totp-verify]
+verify_jwt = false
+
+[functions.export-user-data]
+verify_jwt = false

@@ -1,0 +1,92 @@
+{
+  "common": {
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "save": "Guardar Cambios",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "apply": "Aplicar",
+    "clear": "Limpiar",
+    "viewAll": "Ver Todo",
+    "seeMore": "Ver Más",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "fullName": "Nombre Completo",
+    "welcomeBack": "¡Bienvenido de nuevo!",
+    "createAccount": "Crear Cuenta",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "dontHaveAccount": "¿No tienes cuenta?",
+    "orContinueWith": "o continuar con"
+  },
+  "dashboard": {
+    "welcome": "¡Bienvenido, {{name}}!",
+    "applications": "Tus Aplicaciones",
+    "tasks": "Tus Tareas",
+    "messages": "Mensajes",
+    "notifications": "Notificaciones",
+    "opportunities": "Oportunidades",
+    "portfolio": "Portafolio"
+  },
+  "opportunities": {
+    "title": "Oportunidades",
+    "browse": "Explorar Oportunidades",
+    "apply": "Aplicar Ahora",
+    "applied": "Aplicado",
+    "deadline": "Fecha Límite",
+    "duration": "Duración",
+    "hours": "horas",
+    "skills": "Habilidades Requeridas",
+    "remote": "Remoto",
+    "onsite": "Presencial",
+    "level": "Nivel",
+    "beginner": "Principiante",
+    "intermediate": "Intermedio",
+    "advanced": "Avanzado"
+  },
+  "applications": {
+    "title": "Mis Aplicaciones",
+    "status": "Estado",
+    "pending": "Pendiente",
+    "accepted": "Aceptada",
+    "rejected": "Rechazada",
+    "inProgress": "En Progreso",
+    "completed": "Completada",
+    "withdrawn": "Retirada",
+    "coverLetter": "Carta de Presentación",
+    "resume": "Currículum"
+  },
+  "settings": {
+    "title": "Configuración",
+    "profile": "Perfil",
+    "security": "Seguridad",
+    "preferences": "Preferencias",
+    "data": "Datos",
+    "theme": "Tema",
+    "language": "Idioma",
+    "twoFactor": "Autenticación de Dos Factores",
+    "exportData": "Exportar Mis Datos",
+    "deleteAccount": "Eliminar Cuenta"
+  },
+  "errors": {
+    "generic": "Algo salió mal. Por favor, inténtalo de nuevo.",
+    "unauthorized": "No estás autorizado para realizar esta acción.",
+    "notFound": "El recurso solicitado no fue encontrado.",
+    "offline": "Parece que estás desconectado."
+  }
+}

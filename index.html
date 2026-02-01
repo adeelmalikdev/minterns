@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     
     <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" 
@@ -11,7 +11,7 @@
                    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
                    img-src 'self' data: https: blob:; 
                    font-src 'self' https://fonts.gstatic.com data:; 
-                   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://www.google.com; 
+                   connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://www.google.com https://api.qrserver.com; 
                    frame-src 'self' https://www.google.com/recaptcha/;
                    object-src 'none';">
     
@@ -20,18 +20,33 @@
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#6366f1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="μ-intern" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/favicon.ico" />
+    
     <title>μ-intern | Micro-Internship Platform</title>
     <meta name="description" content="Connect with micro-internship opportunities. Gain real-world experience through short-term projects with leading companies." />
     <meta name="author" content="μ-intern" />
+    <meta name="keywords" content="internship, micro-internship, students, opportunities, jobs, careers, skills" />
 
-    <!-- TODO: Update og:title to match your application name -->
-    <meta property="og:title" content="Lovable App" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="μ-intern | Micro-Internship Platform" />
+    <meta property="og:description" content="Connect with micro-internship opportunities. Gain real-world experience through short-term projects with leading companies." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://minterns.lovable.app" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:site_name" content="μ-intern" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:site" content="@minterns" />
+    <meta name="twitter:title" content="μ-intern | Micro-Internship Platform" />
+    <meta name="twitter:description" content="Connect with micro-internship opportunities. Gain real-world experience." />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
   </head>
 
