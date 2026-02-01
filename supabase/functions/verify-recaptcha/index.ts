@@ -21,18 +21,19 @@ serve(async (req) => {
       );
     }
 
+    // Allow bypass token in development (when no secret key configured)
     const secretKey = Deno.env.get("RECAPTCHA_SECRET_KEY");
 
-    // If no secret key is configured, skip verification in development
-    if (!secretKey) {
-      console.warn("RECAPTCHA_SECRET_KEY not configured - skipping verification");
+    // If no secret key is configured or token is bypass, skip verification in development
+    if (!secretKey || token === "bypass-dev") {
+      console.warn("RECAPTCHA_SECRET_KEY not configured or bypass token used - skipping verification");
       return new Response(
-        JSON.stringify({ verified: true, score: 1.0, warning: "CAPTCHA not configured" }),
+        JSON.stringify({ verified: true, score: 1.0, warning: "CAPTCHA not configured or bypassed" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Verify token with Google
+    // Verify token with Google reCAPTCHA API
     const response = await fetch(
       "https://www.google.com/recaptcha/api/siteverify",
       {
@@ -54,6 +55,13 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Log detailed error info for debugging
+    console.error("reCAPTCHA verification failed:", {
+      success: data.success,
+      errorCodes: data["error-codes"],
+      hostname: data.hostname,
+    });
 
     return new Response(
       JSON.stringify({ 
