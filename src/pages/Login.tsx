@@ -17,7 +17,7 @@ import { checkRateLimit, getRateLimitMessage } from "@/lib/rateLimit";
 import { signInWithGoogle } from "@/lib/googleAuth";
 import { LiveRegion } from "@/components/accessibility/LiveRegion";
 import { verifyRecaptcha } from "@/lib/recaptcha";
-import "@/types/recaptcha"; // Import reCAPTCHA type declarations
+
 
 // reCAPTCHA v2 Invisible Site Key (publishable)
 // NOTE: This key must be created for "reCAPTCHA v2 Invisible" in Google reCAPTCHA admin
