@@ -79,11 +79,15 @@ export default function Login() {
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
   const [recaptchaError, setRecaptchaError] = useState<string | null>(null);
 
-  // Callback when reCAPTCHA v2 checkbox is verified
+  // Callback when reCAPTCHA v2 invisible is verified
   const onRecaptchaVerify = useCallback((token: string) => {
     setRecaptchaToken(token);
     setRecaptchaError(null);
-  }, []);
+    // For invisible captcha, automatically execute submission when token is received
+    if (token) {
+      executeSubmit(token);
+    }
+  }, [executeSubmit]);
 
   // Load reCAPTCHA script and render widget
   useEffect(() => {
@@ -92,7 +96,7 @@ export default function Login() {
         try {
           recaptchaWidgetId.current = window.grecaptcha.render(recaptchaRef.current, {
             sitekey: RECAPTCHA_SITE_KEY,
-            size: "normal", // Using visible reCAPTCHA v2 checkbox
+            size: "invisible", // Using invisible reCAPTCHA v2
             callback: onRecaptchaVerify,
             "expired-callback": () => {
               setRecaptchaToken(null);
@@ -298,25 +302,21 @@ export default function Login() {
       return;
     }
 
-    // For v2 checkbox, check if user has completed the challenge
-    let token: string | null = recaptchaToken;
-    
-    if (!token && recaptchaWidgetId.current !== null && window.grecaptcha) {
-      token = window.grecaptcha.getResponse(recaptchaWidgetId.current);
+    // For v2 invisible, execute the challenge programmatically
+    // The onRecaptchaVerify callback will be triggered with the token
+    if (recaptchaWidgetId.current !== null && window.grecaptcha) {
+      try {
+        setIsLoading(true);
+        window.grecaptcha.execute(recaptchaWidgetId.current);
+        // The executeSubmit will be called from onRecaptchaVerify callback
+      } catch (error) {
+        console.error("reCAPTCHA execute error:", error);
+        setFormError("CAPTCHA verification failed. Please try again.");
+        setIsLoading(false);
+      }
+    } else {
+      setFormError("CAPTCHA is not ready. Please wait a moment and try again.");
     }
-    
-    if (!token) {
-      setFormError("Please complete the CAPTCHA verification.");
-      toast({
-        variant: "destructive",
-        title: "CAPTCHA required",
-        description: "Please check the 'I'm not a robot' box.",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    await executeSubmit(token);
   };
 
   return (
@@ -404,21 +404,20 @@ export default function Login() {
                 )}
               </div>
 
-              {/* reCAPTCHA Widget */}
-              <div className="flex flex-col items-center gap-2">
-                <div 
-                  ref={recaptchaRef} 
-                  aria-label="reCAPTCHA verification"
-                />
-                {recaptchaError && (
-                  <p className="text-sm text-destructive">{recaptchaError}</p>
-                )}
-              </div>
+              {/* reCAPTCHA Widget - invisible */}
+              <div 
+                ref={recaptchaRef} 
+                aria-label="reCAPTCHA verification"
+                className="hidden"
+              />
+              {recaptchaError && (
+                <p className="text-sm text-destructive text-center">{recaptchaError}</p>
+              )}
 
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={isLoading || isGoogleLoading || (!recaptchaToken && recaptchaLoaded && !recaptchaError)}
+                disabled={isLoading || isGoogleLoading}
               >
                 {isLoading 
                   ? (isSignUp ? "Creating account..." : "Signing in...") 

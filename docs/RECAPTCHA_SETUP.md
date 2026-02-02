@@ -60,7 +60,7 @@ When setting up reCAPTCHA for a Lovable-hosted site, you have **two main options
 2. Fill in the form:
    - **Label:** Give your site a name (e.g., "Minterns Login")
    - **reCAPTCHA type:** Select **"reCAPTCHA v2"**
-   - **Sub-type:** Select **"I'm not a robot" Checkbox** (to match current implementation)
+   - **Sub-type:** Select **"Invisible reCAPTCHA badge"** (to match current implementation)
    
 3. **Add domains:**
    
@@ -95,9 +95,9 @@ When setting up reCAPTCHA for a Lovable-hosted site, you have **two main options
    const RECAPTCHA_SITE_KEY = "YOUR_NEW_SITE_KEY_HERE";
    ```
 
-2. **Update the comment** (line 23) to reflect the correct type:
+2. **Verify the comment** (line 23) reflects the correct type:
    ```typescript
-   // NOTE: This key must be created for "reCAPTCHA v2 Checkbox" in Google reCAPTCHA admin
+   // NOTE: This key must be created for "reCAPTCHA v2 Invisible" in Google reCAPTCHA admin
    ```
 
 ### Step 3: Configure Supabase Edge Function
@@ -120,21 +120,21 @@ After configuration:
 
 1. **Clear your browser cache** (reCAPTCHA scripts can be cached)
 2. Visit your login page
-3. You should see the "I'm not a robot" checkbox
-4. Complete the checkbox and try logging in
+3. You should see a small reCAPTCHA badge in the bottom-right corner
+4. Submit the login form - reCAPTCHA will verify automatically
 5. Check browser console for any errors
 
 ### Common Issues
 
 **Issue:** "Invalid key type" error
-- **Cause:** Key type mismatch (using v2 Invisible key with v2 Checkbox implementation)
-- **Solution:** Make sure you selected "I'm not a robot" Checkbox when creating the key
+- **Cause:** Key type mismatch (using v2 Checkbox key with v2 Invisible implementation)
+- **Solution:** Make sure you selected "Invisible reCAPTCHA badge" when creating the key
 
 **Issue:** "Invalid domain for site key"
 - **Cause:** Domain not registered in reCAPTCHA admin
 - **Solution:** Add your Lovable domain or custom domain to the reCAPTCHA site configuration
 
-**Issue:** reCAPTCHA not showing
+**Issue:** reCAPTCHA not verifying
 - **Cause:** Script loading issue or incorrect site key
 - **Solution:** Check browser console, verify site key is correct
 
@@ -146,7 +146,7 @@ After configuration:
 
 1. ✅ **Publish your site on Lovable first**
 2. ✅ **Note the Lovable subdomain** (e.g., `minterns.lovable.app`)
-3. ✅ **Register reCAPTCHA with both:**
+3. ✅ **Register reCAPTCHA v2 Invisible with both:**
    - Your Lovable subdomain
    - `localhost` (for local development)
 4. ✅ **Update your code** with the new keys
@@ -163,9 +163,9 @@ After configuration:
 ## Quick Checklist
 
 - [ ] Published site on Lovable OR configured custom domain
-- [ ] Created reCAPTCHA v2 Checkbox key in Google Admin
+- [ ] Created reCAPTCHA v2 Invisible key in Google Admin
 - [ ] Added correct domain(s) to reCAPTCHA configuration
-- [ ] Updated `RECAPTCHA_SITE_KEY` in `Login.tsx`
+- [ ] Updated `RECAPTCHA_SITE_KEY` in `Login.tsx` (or using existing key if already v2 Invisible)
 - [ ] Updated `RECAPTCHA_SECRET_KEY` in Supabase Edge Function settings
 - [ ] Tested login with reCAPTCHA
 
@@ -173,7 +173,7 @@ After configuration:
 
 ## Additional Resources
 
-- [Google reCAPTCHA Documentation](https://developers.google.com/recaptcha/docs/display)
+- [Google reCAPTCHA Documentation](https://developers.google.com/recaptcha/docs/invisible)
 - [Lovable Custom Domain Setup](https://docs.lovable.dev/features/custom-domain#custom-domain)
 - [Supabase Edge Functions Environment Variables](https://supabase.com/docs/guides/functions/secrets)
 
@@ -186,3 +186,4 @@ If you continue to experience issues:
 2. Verify all keys are copied correctly (no extra spaces)
 3. Ensure domains match exactly (no `https://`, no trailing slashes)
 4. Clear browser cache and try in incognito mode
+5. Verify the key type in Google reCAPTCHA admin matches "Invisible reCAPTCHA badge"
