@@ -71,3 +71,15 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## Setting up reCAPTCHA
+
+This project uses Google reCAPTCHA v2 Invisible for authentication security. To configure it for your deployment:
+
+1. **See the complete guide:** [docs/RECAPTCHA_SETUP.md](docs/RECAPTCHA_SETUP.md)
+
+**Quick Answer:** Yes, publish your site on Lovable first to get your subdomain (e.g., `your-project.lovable.app`), then:
+- Add that domain (and `localhost`) to your existing reCAPTCHA v2 Invisible site in Google reCAPTCHA Admin Console
+- OR create a new reCAPTCHA v2 Invisible key with your domains and update the site key in the code
+
+The current implementation uses **invisible reCAPTCHA** which verifies automatically when the form is submitted.
