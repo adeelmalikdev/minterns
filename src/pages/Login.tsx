@@ -20,8 +20,8 @@ import { verifyRecaptcha } from "@/lib/recaptcha";
 
 
 // reCAPTCHA v2 Invisible Site Key (publishable)
-// NOTE: This key must be created for "reCAPTCHA v2 Invisible" in Google reCAPTCHA admin
-const RECAPTCHA_SITE_KEY = "6LcWcl0sAAAAAL3Vq64KS_sNGEuKRXDEKL51SIqU";
+// reCAPTCHA v2 Checkbox Site Key (publishable)
+const RECAPTCHA_SITE_KEY = "6Ler310sAAAAAA_fWguQcl57vjtvWeMkcoxQxfC_";
 
 type UserRole = "student" | "recruiter" | "admin";
 
