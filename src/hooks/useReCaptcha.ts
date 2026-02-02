@@ -1,8 +1,7 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 
 // reCAPTCHA v2 Checkbox Site Key (publishable)
-// This key is for reCAPTCHA v2 checkbox - NOT invisible or v3
-const RECAPTCHA_SITE_KEY = "6LcWcl0sAAAAAL3Vq64KS_sNGEuKRXDEKL51SIqU";
+const RECAPTCHA_SITE_KEY = "6Ler310sAAAAAA_fWguQcl57vjtvWeMkcoxQxfC_";
 
 declare global {
   interface Window {

@@ -18,10 +18,8 @@ import { signInWithGoogle } from "@/lib/googleAuth";
 import { LiveRegion } from "@/components/accessibility/LiveRegion";
 import { verifyRecaptcha } from "@/lib/recaptcha";
 
-
-// reCAPTCHA v2 Invisible Site Key (publishable)
-// reCAPTCHA v2 Checkbox Site Key (publishable)
-const RECAPTCHA_SITE_KEY = "6Ler310sAAAAAA_fWguQcl57vjtvWeMkcoxQxfC_";
+// reCAPTCHA v2 Checkbox - site key is defined in useReCaptcha.ts
+import { RECAPTCHA_SITE_KEY } from "@/hooks/useReCaptcha";
 
 type UserRole = "student" | "recruiter" | "admin";
 
