@@ -29,16 +29,5 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to={dashboardPath} replace />;
   }
 
-  // Redirect students to complete-profile if profile is not completed
-  if (
-    role === "student" &&
-    profile &&
-    !profile.profile_completed &&
-    location.pathname !== "/student/complete-profile" &&
-    location.pathname !== "/student/profile"
-  ) {
-    return <Navigate to="/student/complete-profile" replace />;
-  }
-
   return <>{children}</>;
 }
