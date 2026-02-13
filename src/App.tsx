@@ -34,6 +34,7 @@ const StudentTasks = lazy(() => import("./pages/student/Tasks"));
 const StudentMessages = lazy(() => import("./pages/student/Messages"));
 const StudentNotifications = lazy(() => import("./pages/student/Notifications"));
 const StudentCompleteProfile = lazy(() => import("./pages/student/CompleteProfile"));
+const StudentProfile = lazy(() => import("./pages/student/Profile"));
 
 // Recruiter
 const RecruiterDashboard = lazy(() => import("./pages/recruiter/Dashboard"));
@@ -97,6 +98,7 @@ const AppRoutes = () => (
         <Route path="/student/tasks" element={<ProtectedRoute allowedRoles={["student"]}><StudentTasks /></ProtectedRoute>} />
         <Route path="/student/messages" element={<ProtectedRoute allowedRoles={["student"]}><StudentMessages /></ProtectedRoute>} />
         <Route path="/student/notifications" element={<ProtectedRoute allowedRoles={["student"]}><StudentNotifications /></ProtectedRoute>} />
+        <Route path="/student/profile" element={<ProtectedRoute allowedRoles={["student"]}><StudentProfile /></ProtectedRoute>} />
 
         {/* Recruiter Routes */}
         <Route path="/recruiter/dashboard" element={<ProtectedRoute allowedRoles={["recruiter"]}><RecruiterDashboard /></ProtectedRoute>} />

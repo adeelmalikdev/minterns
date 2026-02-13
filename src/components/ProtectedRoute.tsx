@@ -34,7 +34,8 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     role === "student" &&
     profile &&
     !profile.profile_completed &&
-    location.pathname !== "/student/complete-profile"
+    location.pathname !== "/student/complete-profile" &&
+    location.pathname !== "/student/profile"
   ) {
     return <Navigate to="/student/complete-profile" replace />;
   }

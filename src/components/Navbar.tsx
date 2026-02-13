@@ -33,6 +33,7 @@ const studentLinks = [
   { href: "/student/applications", label: "Applications" },
   { href: "/student/tasks", label: "Tasks" },
   { href: "/student/portfolio", label: "Portfolio" },
+  { href: "/student/profile", label: "Profile" },
 ];
 
 const recruiterLinks = [
@@ -144,15 +145,6 @@ export function Navbar({ userRole }: NavbarProps) {
                     {profile?.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/settings?tab=profile")}>
-                    <User className="h-4 w-4 mr-2" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/settings")}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign out
@@ -187,17 +179,6 @@ export function Navbar({ userRole }: NavbarProps) {
                       </Button>
                     ))}
                     <div className="border-t my-2" />
-                    <Button
-                      variant="ghost"
-                      className="justify-start gap-2"
-                      onClick={() => {
-                        navigate("/settings");
-                        setMobileOpen(false);
-                      }}
-                    >
-                      <Settings className="h-4 w-4" />
-                      Settings
-                    </Button>
                     <Button
                       variant="ghost"
                       className="justify-start gap-2 text-destructive hover:text-destructive"
