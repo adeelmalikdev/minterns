@@ -21,15 +21,35 @@ serve(async (req) => {
       );
     }
 
-    // Allow bypass token in development (when no secret key configured)
     const secretKey = Deno.env.get("RECAPTCHA_SECRET_KEY");
+    const isDev = Deno.env.get("ENVIRONMENT") === "development";
 
-    // If no secret key is configured or token is bypass, skip verification in development
-    if (!secretKey || token === "bypass-dev") {
-      console.warn("RECAPTCHA_SECRET_KEY not configured or bypass token used - skipping verification");
+    // Only allow bypass in development when explicitly configured
+    if (!secretKey) {
+      if (isDev) {
+        console.warn("RECAPTCHA_SECRET_KEY not configured - skipping verification in dev");
+        return new Response(
+          JSON.stringify({ verified: true, score: 1.0, warning: "CAPTCHA not configured (dev mode)" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       return new Response(
-        JSON.stringify({ verified: true, score: 1.0, warning: "CAPTCHA not configured or bypassed" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ verified: false, error: "CAPTCHA service not configured" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Reject bypass tokens in production
+    if (token === "bypass-dev") {
+      if (isDev) {
+        return new Response(
+          JSON.stringify({ verified: true, score: 1.0, warning: "Bypass token accepted (dev only)" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      return new Response(
+        JSON.stringify({ verified: false, error: "Invalid CAPTCHA token" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
