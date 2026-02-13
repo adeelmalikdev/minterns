@@ -288,6 +288,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           company_description: string | null
           company_logo_url: string | null
           company_name: string | null
@@ -295,17 +296,27 @@ export type Database = {
           created_at: string
           deletion_requested_at: string | null
           deletion_scheduled_for: string | null
+          department: string | null
           email: string
           full_name: string | null
+          github_url: string | null
           id: string
           is_deactivated: boolean | null
           language_preference: string | null
+          linkedin_url: string | null
+          portfolio_url: string | null
+          profile_completed: boolean | null
+          registration_number: string | null
+          semester: number | null
+          skills: string[] | null
           theme_preference: string | null
+          university: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           company_description?: string | null
           company_logo_url?: string | null
           company_name?: string | null
@@ -313,17 +324,27 @@ export type Database = {
           created_at?: string
           deletion_requested_at?: string | null
           deletion_scheduled_for?: string | null
+          department?: string | null
           email: string
           full_name?: string | null
+          github_url?: string | null
           id?: string
           is_deactivated?: boolean | null
           language_preference?: string | null
+          linkedin_url?: string | null
+          portfolio_url?: string | null
+          profile_completed?: boolean | null
+          registration_number?: string | null
+          semester?: number | null
+          skills?: string[] | null
           theme_preference?: string | null
+          university?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           company_description?: string | null
           company_logo_url?: string | null
           company_name?: string | null
@@ -331,12 +352,21 @@ export type Database = {
           created_at?: string
           deletion_requested_at?: string | null
           deletion_scheduled_for?: string | null
+          department?: string | null
           email?: string
           full_name?: string | null
+          github_url?: string | null
           id?: string
           is_deactivated?: boolean | null
           language_preference?: string | null
+          linkedin_url?: string | null
+          portfolio_url?: string | null
+          profile_completed?: boolean | null
+          registration_number?: string | null
+          semester?: number | null
+          skills?: string[] | null
           theme_preference?: string | null
+          university?: string | null
           updated_at?: string
           user_id?: string
         }

@@ -33,6 +33,7 @@ const StudentPortfolio = lazy(() => import("./pages/student/Portfolio"));
 const StudentTasks = lazy(() => import("./pages/student/Tasks"));
 const StudentMessages = lazy(() => import("./pages/student/Messages"));
 const StudentNotifications = lazy(() => import("./pages/student/Notifications"));
+const StudentCompleteProfile = lazy(() => import("./pages/student/CompleteProfile"));
 
 // Recruiter
 const RecruiterDashboard = lazy(() => import("./pages/recruiter/Dashboard"));
@@ -87,6 +88,7 @@ const AppRoutes = () => (
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Student Routes */}
+        <Route path="/student/complete-profile" element={<ProtectedRoute allowedRoles={["student"]}><StudentCompleteProfile /></ProtectedRoute>} />
         <Route path="/student/dashboard" element={<ProtectedRoute allowedRoles={["student"]}><StudentDashboard /></ProtectedRoute>} />
         <Route path="/student/opportunities" element={<ProtectedRoute allowedRoles={["student"]}><StudentOpportunities /></ProtectedRoute>} />
         <Route path="/student/opportunities/:id" element={<ProtectedRoute allowedRoles={["student"]}><StudentOpportunityDetails /></ProtectedRoute>} />
