@@ -11,6 +11,7 @@ import { SessionTimeoutWarning } from "@/components/SessionTimeoutWarning";
 import { CookieConsent } from "@/components/CookieConsent";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { A11yChecker } from "@/components/accessibility/A11yChecker";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { initializeErrorTracking } from "@/lib/sentry";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -241,20 +242,22 @@ const AppRoutes = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          {import.meta.env.DEV && <A11yChecker />}
-          <OfflineIndicator />
-          <AppRoutes />
-          <CookieConsent />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            {import.meta.env.DEV && <A11yChecker />}
+            <OfflineIndicator />
+            <AppRoutes />
+            <CookieConsent />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -8,9 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Feedback() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -23,16 +26,33 @@ export default function Feedback() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const { error } = await supabase.from("site_feedback").insert({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+        user_id: user?.id ?? null,
+      });
 
-    toast({
-      title: "Feedback submitted!",
-      description: "Thank you for your feedback. We'll get back to you soon.",
-    });
+      if (error) throw error;
 
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setIsSubmitting(false);
+      toast({
+        title: "Feedback submitted!",
+        description: "Thank you for your feedback. We'll get back to you soon.",
+      });
+
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      console.error("Feedback submission error:", err);
+      toast({
+        variant: "destructive",
+        title: "Submission failed",
+        description: "Could not submit feedback. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -66,6 +86,7 @@ export default function Feedback() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
+                      maxLength={100}
                     />
                   </div>
                   <div className="space-y-2">
@@ -77,6 +98,7 @@ export default function Feedback() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
+                      maxLength={255}
                     />
                   </div>
                 </div>
@@ -89,6 +111,7 @@ export default function Feedback() {
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     required
+                    maxLength={200}
                   />
                 </div>
 
@@ -101,6 +124,7 @@ export default function Feedback() {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     required
+                    maxLength={2000}
                   />
                 </div>
 

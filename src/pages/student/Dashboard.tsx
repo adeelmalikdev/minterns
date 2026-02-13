@@ -73,7 +73,7 @@ export default function StudentDashboard() {
             Welcome back, {firstName}! 👋
           </h1>
           <p className="text-muted-foreground">
-            Track your micro-internship journey at IIUI SE/IT/CS.
+            Track your micro-internship journey.
           </p>
         </div>
 
@@ -234,7 +234,11 @@ export default function StudentDashboard() {
                   <FileText className="h-4 w-4" />
                   My Applications
                 </Button>
-                <Button variant="ghost" className="w-full justify-start gap-2 h-10">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start gap-2 h-10"
+                  onClick={() => navigate("/student/portfolio")}
+                >
                   <Star className="h-4 w-4" />
                   Update Portfolio
                 </Button>

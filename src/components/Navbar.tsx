@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { User, LogOut, MessageSquare } from "lucide-react";
+import { User, LogOut, MessageSquare, Menu, X, Settings } from "lucide-react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface NavbarProps {
   userRole?: "student" | "recruiter" | "admin" | null;
@@ -43,6 +51,7 @@ export function Navbar({ userRole }: NavbarProps) {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const unreadCount = useUnreadCount();
+  const [mobileOpen, setMobileOpen] = useState(false);
   
   const links = userRole === "student" 
     ? studentLinks 
@@ -119,26 +128,87 @@ export function Navbar({ userRole }: NavbarProps) {
           )}
 
           {userRole ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">
-                    {profile?.full_name || "Account"}
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem className="text-muted-foreground text-xs">
-                  {profile?.email}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              {/* Desktop user dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-2 hidden sm:flex">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {profile?.full_name || "Account"}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem className="text-muted-foreground text-xs">
+                    {profile?.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Mobile hamburger menu */}
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-72">
+                  <SheetHeader>
+                    <SheetTitle className="text-left">Menu</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-1 mt-6">
+                    {links.map((link) => (
+                      <Button
+                        key={link.href}
+                        variant={location.pathname === link.href ? "secondary" : "ghost"}
+                        className="justify-start"
+                        onClick={() => {
+                          navigate(link.href);
+                          setMobileOpen(false);
+                        }}
+                      >
+                        {link.label}
+                      </Button>
+                    ))}
+                    <div className="border-t my-2" />
+                    <Button
+                      variant="ghost"
+                      className="justify-start gap-2"
+                      onClick={() => {
+                        navigate("/settings");
+                        setMobileOpen(false);
+                      }}
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="justify-start gap-2 text-destructive hover:text-destructive"
+                      onClick={() => {
+                        handleSignOut();
+                        setMobileOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </>
           ) : (
             <>
               <Link to="/login">
