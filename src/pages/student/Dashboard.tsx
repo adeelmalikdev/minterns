@@ -1,15 +1,17 @@
-import { FileText, Clock, CheckCircle, Star, ArrowRight, Building2 } from "lucide-react";
+import { FileText, Clock, CheckCircle, Star, ArrowRight, Building2, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { StatCard } from "@/components/StatCard";
 import { OpportunityCard } from "@/components/OpportunityCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useStudentStats } from "@/hooks/useStudentStats";
 import { useRecommendedOpportunities } from "@/hooks/useRecommendedOpportunities";
+import { useAIRecommendations } from "@/hooks/useAIMatching";
 import { useStudentTasks, useDeadlines } from "@/hooks/useStudentTasks";
 import { format } from "date-fns";
 
@@ -20,6 +22,7 @@ export default function StudentDashboard() {
 
   const { data: stats, isLoading: statsLoading } = useStudentStats();
   const { data: opportunities, isLoading: oppsLoading } = useRecommendedOpportunities(3);
+  const { data: aiRecs, isLoading: aiLoading } = useAIRecommendations(3);
   const { data: tasks, isLoading: tasksLoading } = useStudentTasks();
   const { data: deadlines, isLoading: deadlinesLoading } = useDeadlines();
 
@@ -87,12 +90,16 @@ export default function StudentDashboard() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Recommended Opportunities */}
+            {/* AI-Powered Recommendations */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div>
-                  <CardTitle className="text-lg font-semibold">Recommended Micro-Internships</CardTitle>
-                  <p className="text-sm text-muted-foreground">Based on your skills and interests</p>
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    AI-Recommended Opportunities
+                    <Badge variant="secondary" className="text-xs">AI</Badge>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">Personalized matches based on your profile</p>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -105,12 +112,29 @@ export default function StudentDashboard() {
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {oppsLoading ? (
-                  <>
-                    {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className="h-24 w-full" />
-                    ))}
-                  </>
+                {aiLoading ? (
+                  <>{[1, 2, 3].map((i) => (<Skeleton key={i} className="h-24 w-full" />))}</>
+                ) : aiRecs?.matches && aiRecs.matches.length > 0 ? (
+                  aiRecs.matches.map((opp) => (
+                    <div key={opp.id}>
+                      <OpportunityCard
+                        title={opp.title}
+                        company={opp.company_name}
+                        skills={opp.skills_required}
+                        duration={getDurationLabel(opp.duration_hours)}
+                        level={capitalize(opp.level) as "Beginner" | "Intermediate" | "Advanced"}
+                        isRemote={opp.is_remote}
+                        onViewDetails={() => navigate(`/student/opportunities/${opp.id}`)}
+                      />
+                      {aiRecs.reasons[opp.id] && (
+                        <p className="text-xs text-muted-foreground mt-1 ml-2 italic">
+                          💡 {aiRecs.reasons[opp.id]}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                ) : oppsLoading ? (
+                  <>{[1, 2, 3].map((i) => (<Skeleton key={i} className="h-24 w-full" />))}</>
                 ) : opportunities && opportunities.length > 0 ? (
                   opportunities.map((opp) => (
                     <OpportunityCard

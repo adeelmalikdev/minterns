@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FeedbackFormDialog } from "@/components/recruiter/FeedbackFormDialog";
 import { CompletionStatusCard } from "@/components/recruiter/CompletionStatus";
 import { AwardCertificateDialog } from "@/components/recruiter/AwardCertificateDialog";
+import { AICandidateMatches } from "@/components/recruiter/AICandidateMatches";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
@@ -160,6 +161,9 @@ export default function ManageApplicants() {
             </div>
           </CardContent>
         </Card>
+
+        {/* AI Candidate Suggestions */}
+        <AICandidateMatches opportunityId={opportunity.id} />
 
         {/* Pending Applications */}
         {pendingApplicants.length > 0 && (

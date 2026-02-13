@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.export-user-data]
 verify_jwt = false
+
+[functions.ai-match]
+verify_jwt = false
+
+[functions.send-notification-email]
+verify_jwt = false
