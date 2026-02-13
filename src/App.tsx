@@ -29,6 +29,7 @@ import RecruiterSubmissions from "./pages/recruiter/Submissions";
 import RecruiterMessages from "./pages/recruiter/Messages";
 import RecruiterNotifications from "./pages/recruiter/Notifications";
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminLogin from "./pages/admin/AdminLogin";
 import AdminActivities from "./pages/admin/Activities";
 import AboutUs from "./pages/AboutUs";
 import Feedback from "./pages/Feedback";
@@ -201,6 +202,7 @@ const AppRoutes = () => (
     />
     
     {/* Admin Routes */}
+    <Route path="/admin" element={<AdminLogin />} />
     <Route 
       path="/admin/dashboard" 
       element={
