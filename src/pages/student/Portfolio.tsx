@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 import { 
   Award, 
   Briefcase, 
@@ -14,20 +15,22 @@ import {
   Star, 
   CheckCircle2,
   Trophy,
-  Sparkles
+  Sparkles,
+  GraduationCap,
+  MapPin,
+  Github,
+  Linkedin,
+  Globe,
+  BookOpen,
+  Target
 } from "lucide-react";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 function PortfolioSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-6">
-        <Skeleton className="h-24 w-24 rounded-full" />
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-4 w-32" />
-        </div>
-      </div>
+      <Skeleton className="h-48 w-full rounded-xl" />
       <div className="grid gap-4 md:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-24" />
@@ -39,78 +42,204 @@ function PortfolioSkeleton() {
   );
 }
 
-function StatCard({ 
-  icon: Icon, 
-  label, 
-  value 
-}: { 
-  icon: React.ElementType; 
-  label: string; 
-  value: string | number;
-}) {
+function ProfileHero({ profile, portfolio }: { profile: any; portfolio: any }) {
+  const completedCount = portfolio?.internships?.length || 0;
+
+  return (
+    <Card className="overflow-hidden border-none shadow-lg">
+      <div className="bg-gradient-to-r from-primary/80 to-primary h-32 md:h-40" />
+      <CardContent className="relative px-6 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-16 md:-mt-20">
+          <Avatar className="h-28 w-28 md:h-36 md:w-36 border-4 border-background shadow-md">
+            <AvatarImage src={profile?.avatar_url || undefined} />
+            <AvatarFallback className="text-3xl bg-primary/10 text-primary">
+              {profile?.full_name?.charAt(0) || "S"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 pt-2 md:pb-2">
+            <h1 className="text-2xl md:text-3xl font-bold">{profile?.full_name || "Student"}</h1>
+            <p className="text-muted-foreground">{profile?.email}</p>
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
+              {profile?.university && (
+                <span className="flex items-center gap-1">
+                  <GraduationCap className="h-4 w-4" />
+                  {profile.university}
+                </span>
+              )}
+              {profile?.department && (
+                <span className="flex items-center gap-1">
+                  <BookOpen className="h-4 w-4" />
+                  {profile.department}
+                </span>
+              )}
+              {profile?.semester && (
+                <span className="flex items-center gap-1">
+                  <Target className="h-4 w-4" />
+                  Semester {profile.semester}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {profile?.github_url && (
+              <Button variant="outline" size="icon" asChild>
+                <a href={profile.github_url} target="_blank" rel="noopener noreferrer">
+                  <Github className="h-4 w-4" />
+                </a>
+              </Button>
+            )}
+            {profile?.linkedin_url && (
+              <Button variant="outline" size="icon" asChild>
+                <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              </Button>
+            )}
+            {profile?.portfolio_url && (
+              <Button variant="outline" size="icon" asChild>
+                <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">
+                  <Globe className="h-4 w-4" />
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+        {profile?.bio && (
+          <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-2xl">
+            {profile.bio}
+          </p>
+        )}
+        {completedCount > 0 && (
+          <div className="flex items-center gap-2 mt-3">
+            <Trophy className="h-5 w-5 text-warning" />
+            <span className="font-medium text-sm">
+              {completedCount} Internship{completedCount !== 1 ? "s" : ""} Completed
+            </span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function StatsGrid({ portfolio }: { portfolio: any }) {
+  const stats = [
+    { icon: Briefcase, label: "Completed Internships", value: portfolio?.internships?.length || 0, color: "text-primary" },
+    { icon: Clock, label: "Total Hours", value: portfolio?.totalHours || 0, color: "text-primary" },
+    { icon: Star, label: "Average Rating", value: portfolio?.averageRating?.toFixed(1) || "N/A", color: "text-warning" },
+  ];
+
+  return (
+    <div className="grid gap-4 md:grid-cols-3">
+      {stats.map((stat) => (
+        <Card key={stat.label} className="group hover:shadow-md transition-shadow">
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 group-hover:bg-primary/15 transition-colors">
+              <stat.icon className={`h-6 w-6 ${stat.color}`} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{stat.value}</p>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function EducationSection({ profile }: { profile: any }) {
+  if (!profile?.university && !profile?.department && !profile?.semester && !profile?.registration_number) {
+    return null;
+  }
+
   return (
     <Card>
-      <CardContent className="flex items-center gap-4 p-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-          <Icon className="h-6 w-6 text-primary" />
-        </div>
-        <div>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-sm text-muted-foreground">{label}</p>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <GraduationCap className="h-5 w-5 text-primary" />
+          Education
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <GraduationCap className="h-6 w-6 text-primary" />
+          </div>
+          <div className="space-y-1">
+            {profile.university && (
+              <p className="font-semibold text-base">{profile.university}</p>
+            )}
+            {profile.department && (
+              <p className="text-sm text-muted-foreground">{profile.department}</p>
+            )}
+            <div className="flex flex-wrap gap-3 mt-2">
+              {profile.semester && (
+                <Badge variant="secondary">Semester {profile.semester}</Badge>
+              )}
+              {profile.registration_number && (
+                <Badge variant="outline">Reg # {profile.registration_number}</Badge>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-function InternshipCard({
-  internship,
-}: {
-  internship: {
-    id: string;
-    opportunityTitle: string;
-    companyName: string;
-    completedAt: string;
-    durationHours: number;
-    skills: string[];
-    rating: number | null;
-    feedback: string | null;
-    certificateId: string | null;
-    verificationCode: string | null;
-  };
-}) {
+function SkillsSection({ profile, portfolio }: { profile: any; portfolio: any }) {
+  const profileSkills = profile?.skills || [];
+  const earnedSkills = portfolio?.allSkills || [];
+  const allSkills = [...new Set([...profileSkills, ...earnedSkills])];
+
+  if (allSkills.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Sparkles className="h-5 w-5 text-primary" />
+          Skills
+        </CardTitle>
+        <CardDescription>
+          Profile skills and skills demonstrated in internships
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-2">
+          {allSkills.map((skill) => {
+            const isEarned = earnedSkills.includes(skill);
+            return (
+              <Badge
+                key={skill}
+                variant={isEarned ? "default" : "secondary"}
+                className="py-1.5 px-3 text-sm"
+              >
+                {isEarned && <CheckCircle2 className="h-3 w-3 mr-1" />}
+                {skill}
+              </Badge>
+            );
+          })}
+        </div>
+        {earnedSkills.length > 0 && profileSkills.length > 0 && (
+          <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3" /> = Demonstrated in an internship
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function InternshipCard({ internship }: { internship: any }) {
   const handleDownloadCertificate = () => {
-    // Create a simple certificate HTML and download as PDF simulation
     const certificateContent = `
-      <html>
-        <head>
-          <title>Certificate of Completion</title>
-          <style>
-            body { font-family: Georgia, serif; text-align: center; padding: 60px; }
-            .border { border: 3px double #333; padding: 40px; margin: 20px; }
-            h1 { color: #1a365d; font-size: 32px; margin-bottom: 20px; }
-            h2 { color: #2d3748; font-size: 24px; margin: 30px 0; }
-            p { color: #4a5568; font-size: 16px; line-height: 1.8; }
-            .verification { margin-top: 40px; font-size: 12px; color: #718096; }
-          </style>
-        </head>
-        <body>
-          <div class="border">
-            <h1>🎓 Certificate of Completion</h1>
-            <p>This is to certify that</p>
-            <h2>has successfully completed</h2>
-            <h2>${internship.opportunityTitle}</h2>
-            <p>at <strong>${internship.companyName}</strong></p>
-            <p>Duration: ${internship.durationHours} hours</p>
-            <p>Completed on: ${format(new Date(internship.completedAt), "MMMM d, yyyy")}</p>
-            <div class="verification">
-              Verification Code: ${internship.verificationCode || "N/A"}
-            </div>
-          </div>
-        </body>
-      </html>
-    `;
-    
+      <html><head><title>Certificate of Completion</title>
+      <style>body{font-family:Georgia,serif;text-align:center;padding:60px}.border{border:3px double #333;padding:40px;margin:20px}h1{color:hsl(var(--primary));font-size:32px}h2{color:#2d3748;font-size:24px;margin:30px 0}p{color:#4a5568;font-size:16px;line-height:1.8}.verification{margin-top:40px;font-size:12px;color:#718096}</style>
+      </head><body><div class="border"><h1>🎓 Certificate of Completion</h1><p>This is to certify successful completion of</p><h2>${internship.opportunityTitle}</h2><p>at <strong>${internship.companyName}</strong></p><p>Duration: ${internship.durationHours} hours</p><p>Completed on: ${format(new Date(internship.completedAt), "MMMM d, yyyy")}</p><div class="verification">Verification Code: ${internship.verificationCode || "N/A"}</div></div></body></html>`;
     const blob = new Blob([certificateContent], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -123,7 +252,7 @@ function InternshipCard({
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <CardHeader className="bg-muted/30">
         <div className="flex items-start justify-between">
           <div>
@@ -148,37 +277,25 @@ function InternshipCard({
             {internship.durationHours} hours
           </div>
           <div className="flex items-center gap-1">
-            <CheckCircle2 className="h-4 w-4 text-success" />
+            <CheckCircle2 className="h-4 w-4 text-primary" />
             Completed {format(new Date(internship.completedAt), "MMM yyyy")}
           </div>
         </div>
-
         {internship.skills.length > 0 && (
-          <div>
-            <p className="text-sm font-medium mb-2">Skills Demonstrated</p>
-            <div className="flex flex-wrap gap-2">
-              {internship.skills.map((skill) => (
-                <Badge key={skill} variant="skill">
-                  {skill}
-                </Badge>
-              ))}
-            </div>
+          <div className="flex flex-wrap gap-2">
+            {internship.skills.map((skill: string) => (
+              <Badge key={skill} variant="secondary" className="text-xs">{skill}</Badge>
+            ))}
           </div>
         )}
-
         {internship.feedback && (
           <div className="rounded-lg bg-muted/50 p-4">
             <p className="text-sm font-medium mb-1">Recruiter Feedback</p>
             <p className="text-sm text-muted-foreground italic">"{internship.feedback}"</p>
           </div>
         )}
-
         {internship.certificateId && (
-          <Button 
-            variant="outline" 
-            className="w-full gap-2"
-            onClick={handleDownloadCertificate}
-          >
+          <Button variant="outline" className="w-full gap-2" onClick={handleDownloadCertificate}>
             <Download className="h-4 w-4" />
             Download Certificate
           </Button>
@@ -195,7 +312,7 @@ export default function StudentPortfolio() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar userRole={role} />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 max-w-5xl">
         {isLoading ? (
           <PortfolioSkeleton />
         ) : error ? (
@@ -203,79 +320,21 @@ export default function StudentPortfolio() {
             <p className="text-destructive">Failed to load portfolio. Please try again.</p>
           </Card>
         ) : (
-          <div className="space-y-8">
-            {/* Profile Header */}
-            <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-              <Avatar className="h-24 w-24 md:h-32 md:w-32">
-                <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback className="text-2xl">
-                  {profile?.full_name?.charAt(0) || profile?.email?.charAt(0) || "S"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-center md:text-left">
-                <h1 className="text-3xl font-bold">{profile?.full_name || "Student"}</h1>
-                <p className="text-muted-foreground">{profile?.email}</p>
-                {portfolio && portfolio.internships.length > 0 && (
-                  <div className="flex items-center gap-2 mt-2 justify-center md:justify-start">
-                    <Trophy className="h-5 w-5 text-warning" />
-                    <span className="font-medium">
-                      {portfolio.internships.length} Internship{portfolio.internships.length !== 1 ? "s" : ""} Completed
-                    </span>
-                  </div>
-                )}
-              </div>
+          <div className="space-y-6">
+            <ProfileHero profile={profile} portfolio={portfolio} />
+            <StatsGrid portfolio={portfolio} />
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <EducationSection profile={profile} />
+              <SkillsSection profile={profile} portfolio={portfolio} />
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-3">
-              <StatCard 
-                icon={Briefcase} 
-                label="Completed Internships" 
-                value={portfolio?.internships.length || 0} 
-              />
-              <StatCard 
-                icon={Clock} 
-                label="Total Hours" 
-                value={portfolio?.totalHours || 0} 
-              />
-              <StatCard 
-                icon={Star} 
-                label="Average Rating" 
-                value={portfolio?.averageRating?.toFixed(1) || "N/A"} 
-              />
-            </div>
-
-            {/* Skills Section */}
-            {portfolio?.allSkills && portfolio.allSkills.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    Skills Earned
-                  </CardTitle>
-                  <CardDescription>
-                    Skills demonstrated across all completed internships
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {portfolio.allSkills.map((skill) => (
-                      <Badge key={skill} variant="secondary" className="text-sm py-1 px-3">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Internships Section */}
+            {/* Internships */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                <Award className="h-6 w-6 text-primary" />
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Award className="h-5 w-5 text-primary" />
                 Completed Internships
               </h2>
-              
               {portfolio?.internships && portfolio.internships.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2">
                   {portfolio.internships.map((internship) => (
@@ -295,7 +354,7 @@ export default function StudentPortfolio() {
                       </p>
                     </div>
                     <Button asChild>
-                      <a href="/student/opportunities">Browse Opportunities</a>
+                      <Link to="/student/opportunities">Browse Opportunities</Link>
                     </Button>
                   </div>
                 </Card>
