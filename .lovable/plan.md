@@ -1,262 +1,104 @@
 
 
-# Task Submission System - Implementation Plan
+## Profile Completion Form for Students
 
-## Overview
+Your proposed form is **comprehensive and well-structured**. Here's my recommendation on how to implement it with the existing database schema and what additional schema changes are needed.
 
-This plan implements a dedicated Tasks page where students can view all their assigned tasks from active internships and submit their work (URLs and notes). The system will leverage existing hooks (`useStudentTasks`, `useSubmitTask`, `useUpdateSubmission`) and follow established UI patterns from the codebase.
+### Form Structure (Your Proposal is Good)
 
----
+Your form has two logical sections:
 
-## Current State Analysis
+**Section 1: Personal Information**
+- Name (prefilled from signup)
+- Email (prefilled from signup, read-only)
+- University
+- Registration Number
+- Department (dropdown)
+- Semester (dropdown)
 
-**What Exists:**
-- `useStudentTasks` hook - fetches tasks for active applications (status: accepted/in_progress)
-- `useSubmitTask` mutation - creates new task submissions
-- `useUpdateSubmission` mutation - updates existing submissions
-- `task_submissions` table with fields: `submission_url`, `notes`, `status` (pending/approved/needs_revision)
-- RLS policies already configured for students to create and update their submissions
-- Dashboard shows tasks but without submission capability
-- Applications page has "View Tasks" button that navigates to `/student/tasks` (page doesn't exist yet)
+**Section 2: Profile Information**
+- Bio/About
+- Skills (multi-select dropdown, matching recruiter's skill taxonomy)
+- GitHub URL
+- LinkedIn URL
+- Portfolio Website URL
 
-**What's Missing:**
-- Dedicated `/student/tasks` page
-- Task submission dialog/form UI
-- Ability to view and edit existing submissions
-- Visual feedback for submission status and recruiter feedback
+### Implementation Approach
 
----
+#### **Database Schema Changes Required**
 
-## Implementation Steps
+The current `profiles` table only has:
+- `full_name`, `avatar_url`, `email`, `created_at`, `updated_at`
+- Plus recruiter fields: `company_name`, `company_logo_url`, `company_website`, `company_description`
+- No student-specific fields
 
-### Step 1: Create Student Tasks Page
+**We need to add these columns to `profiles` table:**
+- `university` (text, nullable)
+- `registration_number` (text, nullable)
+- `department` (text, nullable)
+- `semester` (integer, nullable)
+- `bio` (text, nullable)
+- `skills` (text array, nullable) — same format as recruiter's `skills_required`
+- `github_url` (text, nullable)
+- `linkedin_url` (text, nullable)
+- `portfolio_url` (text, nullable)
+- `profile_completed` (boolean, default false) — from your earlier requirement
 
-**File:** `src/pages/student/Tasks.tsx`
+This keeps everything in one table and avoids unnecessary joins.
 
-A new page that displays all tasks grouped by opportunity/internship with:
+#### **Form Field Requirements & Validation**
 
-- Header with page title and task count
-- Filter tabs: All | Not Started | Submitted | Needs Revision | Approved
-- Task cards showing:
-  - Task title and description
-  - Company/opportunity name
-  - Due date (calculated from application acceptance + due_days)
-  - Submission status badge
-  - "Submit Work" or "Edit Submission" button
-  - Recruiter feedback (if needs_revision or approved)
+| Field | Mandatory? | Validation |
+|-------|-----------|------------|
+| Full Name | ✅ Yes | Min 2 chars, max 100 |
+| Email | ❌ No (read-only, already verified) | N/A |
+| University | ❌ Optional | Max 100 chars |
+| Registration # | ❌ Optional | Max 50 chars |
+| Department | ❌ Optional | From dropdown (CS, ECE, IT, etc.) |
+| Semester | ❌ Optional | 1-8 |
+| Bio | ❌ Optional | Max 500 chars |
+| Skills | ❌ Optional | Multi-select from 30+ skills |
+| GitHub | ❌ Optional | Valid URL format |
+| LinkedIn | ❌ Optional | Valid URL format |
+| Portfolio | ❌ Optional | Valid URL format |
 
-**UI Components Used:**
-- `Tabs` for filtering
-- `Card` for task display
-- `Badge` for status
-- `Dialog` for submission form
-- `Skeleton` for loading states
+**Recommendation**: Make the form minimally required (just `full_name`), but guide students to fill more fields with visual cues. This reduces friction while encouraging complete profiles.
 
-### Step 2: Create Task Submission Dialog Component
+#### **Implementation Plan**
 
-**File:** `src/components/tasks/TaskSubmissionDialog.tsx`
+1. **Database Migration**: Add 9 new columns to `profiles` table
+2. **Create `/student/complete-profile` page** with:
+   - Two-step form (Personal Info → Profile Info) OR single scrollable form
+   - Progress indicator showing completion %
+   - Prefilled name + email
+   - Dropdown options for Department (hardcoded options) and Semester (1-8)
+   - Skills dropdown pulling from a defined skill list (same as opportunities)
+   - Submit button that sets `profile_completed = true`
+3. **Update `ProtectedRoute.tsx`**: Check `profile_completed` flag for students, redirect to complete-profile if false
+4. **Update `useAuth.tsx`**: Add new fields to Profile interface
+5. **Register route in `App.tsx`**
 
-A reusable dialog component for submitting/editing task work:
+#### **UX Considerations**
 
-**Form Fields:**
-- Submission URL (optional) - Input with URL validation
-- Notes (optional) - Textarea for additional context
+- **Two-page vs One-page**: Recommend a single page with collapsible sections or light two-step wizard (feels less intimidating than one long form)
+- **Skills Selection**: Display as multi-select combobox (like cmdk component) for good UX with many options
+- **URL Validation**: Use basic URL validation; let users know these help recruiters find them
+- **Save Progress**: Autosave as they type (your app already has `useFormAutosave` hook)
 
-**Features:**
-- Pre-fills existing submission data when editing
-- Shows task details (title, description) in dialog header
-- Submit button with loading state
-- Cancel button to close without saving
-- Success toast on submission
-- Error handling with toast notifications
+#### **Files to Create/Modify**
 
-**Validation (using zod):**
-- URL must be valid if provided
-- At least one field (URL or notes) must be filled
+**Create:**
+- `src/pages/student/CompleteProfile.tsx` — the form page
 
-### Step 3: Create Task Card Component
+**Modify:**
+- `supabase/migrations/` — migration to add 9 columns
+- `src/hooks/useAuth.tsx` — update Profile interface
+- `src/components/ProtectedRoute.tsx` — add profile_completed check
+- `src/App.tsx` — register route
+- `src/integrations/supabase/types.ts` — auto-updated by migration
 
-**File:** `src/components/tasks/StudentTaskCard.tsx`
+#### **Skills List (Predefined)**
 
-A card component for displaying individual tasks:
-
-**Displays:**
-- Task number/order
-- Task title
-- Task description (truncated with expand option)
-- Company name
-- Due date with urgency indicator (red if < 3 days)
-- Status badge with appropriate colors:
-  - Not Started: gray
-  - Submitted/Pending: yellow/warning
-  - Approved: green/success
-  - Needs Revision: red/destructive
-
-**Actions:**
-- "Submit Work" button (if no submission)
-- "Edit Submission" button (if pending submission)
-- "View Feedback" for approved/revision status
-
-**Feedback Section:**
-- Collapsible section showing recruiter feedback
-- Visible when status is `needs_revision` or `approved`
-
-### Step 4: Add Route to App.tsx
-
-**File:** `src/App.tsx`
-
-Add new protected route:
-```
-/student/tasks -> StudentTasks (protected, student role only)
-```
-
-### Step 5: Update Dashboard Quick Actions
-
-**File:** `src/pages/student/Dashboard.tsx`
-
-- Add "View All Tasks" button to the Ongoing Tasks section header
-- Make task cards in dashboard clickable to navigate to tasks page
-
-### Step 6: Update Navbar
-
-**File:** `src/components/Navbar.tsx`
-
-Add "Tasks" link to student navigation menu (if not already present).
-
----
-
-## Data Flow
-
-```text
-+-------------------+     +------------------+     +--------------------+
-|  Student Tasks    | --> | useStudentTasks  | --> | Supabase           |
-|  Page             |     | (fetch)          |     | - applications     |
-+-------------------+     +------------------+     | - tasks            |
-        |                                          | - task_submissions |
-        v                                          +--------------------+
-+-------------------+     +------------------+            ^
-| TaskSubmission    | --> | useSubmitTask/   | ----------+
-| Dialog            |     | useUpdateSubmission
-+-------------------+     +------------------+
-```
-
----
-
-## File Changes Summary
-
-| File | Action | Purpose |
-|------|--------|---------|
-| `src/pages/student/Tasks.tsx` | Create | Main tasks page with filtering |
-| `src/components/tasks/TaskSubmissionDialog.tsx` | Create | Submission form dialog |
-| `src/components/tasks/StudentTaskCard.tsx` | Create | Individual task card |
-| `src/App.tsx` | Update | Add `/student/tasks` route |
-| `src/pages/student/Dashboard.tsx` | Update | Add navigation to tasks page |
-| `src/components/Navbar.tsx` | Update | Add Tasks nav link (if needed) |
-
----
-
-## Technical Details
-
-### Task Submission Schema (zod)
-
-```typescript
-const taskSubmissionSchema = z.object({
-  submissionUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
-  notes: z.string().max(2000, "Notes must be less than 2000 characters").optional(),
-}).refine(
-  (data) => data.submissionUrl || data.notes,
-  { message: "Please provide either a URL or notes" }
-);
-```
-
-### Status Badge Colors
-
-```typescript
-const statusConfig = {
-  not_started: { label: "Not Started", color: "bg-muted text-muted-foreground" },
-  pending: { label: "Under Review", color: "bg-warning/10 text-warning" },
-  approved: { label: "Approved", color: "bg-success/10 text-success" },
-  needs_revision: { label: "Needs Revision", color: "bg-destructive/10 text-destructive" },
-};
-```
-
-### Due Date Calculation
-
-Due dates are calculated from the application's `created_at` timestamp plus the task's `due_days` value. This logic already exists in `useDeadlines` and will be reused.
-
----
-
-## UI Preview
-
-**Tasks Page Layout:**
-
-```text
-+----------------------------------------------------------+
-| [Navbar]                                                  |
-+----------------------------------------------------------+
-| My Tasks                                        [X] tasks |
-| Track and submit your micro-internship work              |
-+----------------------------------------------------------+
-| [All] [Not Started] [Submitted] [Needs Revision] [Done]  |
-+----------------------------------------------------------+
-|                                                          |
-| +------------------------------------------------------+ |
-| | [1] Task Title                           [Status]    | |
-| |     Company Name                                     | |
-| |     Description text here...                         | |
-| |     Due: Jan 15, 2026 (in 3 days)                   | |
-| |                                      [Submit Work]   | |
-| +------------------------------------------------------+ |
-|                                                          |
-| +------------------------------------------------------+ |
-| | [2] Another Task                    [Needs Revision] | |
-| |     Company Name                                     | |
-| |     ...                                              | |
-| |     [Recruiter Feedback]                             | |
-| |     "Please add more details to your implementation" | |
-| |                                    [Edit Submission] | |
-| +------------------------------------------------------+ |
-+----------------------------------------------------------+
-```
-
-**Submission Dialog:**
-
-```text
-+----------------------------------------+
-| Submit Work for: Task Title            |
-+----------------------------------------+
-| Task Description:                      |
-| [Description text here...]             |
-|                                        |
-| Submission URL (optional)              |
-| [https://github.com/user/repo       ]  |
-|                                        |
-| Notes (optional)                       |
-| [                                   ]  |
-| [                                   ]  |
-| [                                   ]  |
-|                                        |
-| [Cancel]              [Submit Work]    |
-+----------------------------------------+
-```
-
----
-
-## Edge Cases Handled
-
-1. **No active internships**: Show empty state with link to browse opportunities
-2. **All tasks completed**: Show congratulatory message
-3. **Task without due_days**: Display "No deadline" instead of date
-4. **Failed submission**: Show error toast, keep dialog open
-5. **Re-submission after revision request**: Allow editing when status is `needs_revision`
-
----
-
-## Dependencies
-
-No new dependencies required. Uses existing:
-- `@tanstack/react-query` for data fetching
-- `react-hook-form` + `zod` for form validation
-- `date-fns` for date formatting
-- Existing UI components from `src/components/ui/`
+Use a consistent skills taxonomy. Suggest aligning with recruiter's opportunities skills. Examples:
+`React`, `TypeScript`, `Python`, `Node.js`, `PostgreSQL`, `AWS`, `Docker`, `Git`, `JavaScript`, `Vue.js`, `Django`, `REST APIs`, `GraphQL`, `MongoDB`, `HTML/CSS`, etc.
 
