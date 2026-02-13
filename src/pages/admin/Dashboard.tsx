@@ -54,7 +54,7 @@ export default function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-muted-foreground">
-            Welcome back, {profile?.full_name || "Admin"} — IIUI SE/IT/CS Micro-Internship Platform
+            Welcome back, {profile?.full_name || "Admin"} — Micro-Internship Platform Overview
           </p>
         </div>
 

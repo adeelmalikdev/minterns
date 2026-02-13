@@ -153,7 +153,7 @@ export default function Landing() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Why Choose μ-intern?</h2>
             <p className="text-muted-foreground">
-              Built specifically for IIUI SE/IT/CS students
+              Built for students and industry professionals
             </p>
           </div>
 
@@ -178,7 +178,7 @@ export default function Landing() {
             Ready to Gain Real Experience?
           </h2>
           <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-            Join IIUI SE/IT/CS students in building professional portfolios through micro-internships
+            Join students and professionals building portfolios through micro-internships
           </p>
           <Link to="/login">
             <Button size="lg" variant="secondary" className="gap-2 bg-background text-foreground hover:bg-background/90">

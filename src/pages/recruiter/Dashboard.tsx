@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, Users, CheckCircle, Plus, FileText, TrendingUp, ClipboardCheck, ArrowRight } from "lucide-react";
+import { Building2, Users, CheckCircle, Plus, FileText, TrendingUp, ClipboardCheck, ArrowRight, Edit } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 
 import { useAuth } from "@/hooks/useAuth";
 import { useRecruiterStats, useRecruiterOpportunities, useRecruiterApplicationTrends } from "@/hooks/useRecruiterData";
 import { usePendingSubmissionsCount } from "@/hooks/useRecruiterSubmissions";
+import { EditOpportunityDialog, CloseOpportunityButton } from "@/components/recruiter/EditOpportunityDialog";
 
 export default function RecruiterDashboard() {
   const navigate = useNavigate();
@@ -53,6 +55,7 @@ export default function RecruiterDashboard() {
   ];
 
   const activePostings = opportunities?.filter(o => o.status === "published") || [];
+  const [editingOpportunity, setEditingOpportunity] = useState<typeof opportunities extends (infer T)[] | undefined ? T | null : never>(null);
   
   return (
     <div className="min-h-screen bg-muted/30">
@@ -65,7 +68,7 @@ export default function RecruiterDashboard() {
             <h1 className="text-3xl font-bold text-foreground mb-2">
               Welcome, {profile?.full_name || "Recruiter"}
             </h1>
-            <p className="text-muted-foreground">Manage micro-internships for IIUI SE/IT/CS students</p>
+            <p className="text-muted-foreground">Manage your micro-internship opportunities</p>
           </div>
           <Button className="gap-2" onClick={() => navigate("/recruiter/post")}>
             <Plus className="h-4 w-4" />
@@ -159,15 +162,26 @@ export default function RecruiterDashboard() {
                       <p className="text-sm text-muted-foreground mb-3">
                         {posting.company_name}
                       </p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full gap-2"
-                        onClick={() => navigate(`/recruiter/opportunities/${posting.id}/applicants`)}
-                      >
-                        <FileText className="h-4 w-4" />
-                        View Applicants
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1 gap-2"
+                          onClick={() => navigate(`/recruiter/opportunities/${posting.id}/applicants`)}
+                        >
+                          <FileText className="h-4 w-4" />
+                          Applicants
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1"
+                          onClick={() => setEditingOpportunity(posting)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <CloseOpportunityButton opportunity={posting} />
+                      </div>
                     </CardContent>
                   </Card>
                 ))
@@ -182,6 +196,15 @@ export default function RecruiterDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Edit Opportunity Dialog */}
+        {editingOpportunity && (
+          <EditOpportunityDialog
+            opportunity={editingOpportunity}
+            open={!!editingOpportunity}
+            onOpenChange={(open) => { if (!open) setEditingOpportunity(null); }}
+          />
+        )}
       </main>
     </div>
   );
