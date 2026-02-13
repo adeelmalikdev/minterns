@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, role, isLoading } = useAuth();
+  const { user, role, profile, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -25,9 +25,18 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   if (allowedRoles && role && !allowedRoles.includes(role)) {
-    // Redirect to the user's appropriate dashboard
     const dashboardPath = `/${role}/dashboard`;
     return <Navigate to={dashboardPath} replace />;
+  }
+
+  // Redirect students to complete-profile if profile is not completed
+  if (
+    role === "student" &&
+    profile &&
+    !profile.profile_completed &&
+    location.pathname !== "/student/complete-profile"
+  ) {
+    return <Navigate to="/student/complete-profile" replace />;
   }
 
   return <>{children}</>;

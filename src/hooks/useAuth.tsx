@@ -10,6 +10,16 @@ interface Profile {
   email: string;
   full_name: string | null;
   avatar_url: string | null;
+  university: string | null;
+  registration_number: string | null;
+  department: string | null;
+  semester: number | null;
+  bio: string | null;
+  skills: string[] | null;
+  github_url: string | null;
+  linkedin_url: string | null;
+  portfolio_url: string | null;
+  profile_completed: boolean | null;
   created_at: string;
   updated_at: string;
 }
