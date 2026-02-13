@@ -503,6 +503,14 @@ export default function Login() {
               </Button>
             </>
 
+            {!isSignUp && (
+              <div className="text-center mt-4">
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                  Forgot your password?
+                </Link>
+              </div>
+            )}
+
             <div className="text-center text-sm text-muted-foreground mt-6">
               {isSignUp ? (
                 <p>

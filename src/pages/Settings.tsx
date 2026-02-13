@@ -18,6 +18,7 @@ import { AvatarUpload } from "@/components/profile/AvatarUpload";
 import { SecuritySettings } from "@/components/settings/SecuritySettings";
 import { DataExportButton } from "@/components/settings/DataExportButton";
 import { AccountDeletionDialog } from "@/components/settings/AccountDeletionDialog";
+import { CompanyProfileSection } from "@/components/recruiter/CompanyProfileSection";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -115,6 +116,9 @@ export default function Settings() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Company Profile for Recruiters */}
+            {role === "recruiter" && <CompanyProfileSection />}
           </TabsContent>
 
           {/* Security Tab */}
