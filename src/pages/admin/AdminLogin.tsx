@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { SkipLink } from "@/components/accessibility/SkipLink";
 import { checkRateLimit, getRateLimitMessage } from "@/lib/rateLimit";
 import { LiveRegion } from "@/components/accessibility/LiveRegion";
@@ -137,11 +138,25 @@ export default function AdminLogin() {
           description: error.message,
         });
       } else {
-        // The auth state change will check the role and redirect via useEffect
-        // But we also do a manual check after a short delay
-        setTimeout(() => {
-          navigate("/admin/dashboard");
-        }, 100);
+        // Verify the user actually has the admin role
+        const { data: roleData, error: roleError } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", (await supabase.auth.getUser()).data.user?.id ?? "")
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (roleError || !roleData) {
+          // Not an admin — sign them out immediately
+          await supabase.auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Access denied",
+            description: "This account does not have administrator privileges.",
+          });
+        } else {
+          navigate("/admin/dashboard", { replace: true });
+        }
       }
     } catch {
       toast({

@@ -17,6 +17,8 @@ import { checkRateLimit, getRateLimitMessage } from "@/lib/rateLimit";
 import { signInWithGoogle } from "@/lib/googleAuth";
 import { LiveRegion } from "@/components/accessibility/LiveRegion";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { supabase } from "@/integrations/supabase/client";
+import { checkLeakedPassword } from "@/lib/passwordCheck";
 
 // reCAPTCHA v2 Checkbox - site key is defined in useReCaptcha.ts
 import { RECAPTCHA_SITE_KEY } from "@/hooks/useReCaptcha";
@@ -241,10 +243,35 @@ export default function Login() {
             description: error.message,
           });
         } else {
-          // Wait a moment for auth state to update then navigate
-          setTimeout(() => {
-            navigate(config.dashboardPath);
-          }, 100);
+          // Verify the user's role matches the selected role
+          const { data: userData } = await supabase.auth.getUser();
+          const { data: roleData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userData.user?.id ?? "")
+            .maybeSingle();
+
+          const actualRole = roleData?.role;
+
+          if (actualRole === "admin") {
+            // Admin should use /admin login page
+            await supabase.auth.signOut();
+            toast({
+              variant: "destructive",
+              title: "Access denied",
+              description: "Please use the admin login page.",
+            });
+          } else if (actualRole !== role) {
+            // Role mismatch — sign out and show error
+            await supabase.auth.signOut();
+            toast({
+              variant: "destructive",
+              title: "Role mismatch",
+              description: `This account is registered as a ${actualRole}. Please select the correct role tab.`,
+            });
+          } else {
+            navigate(config.dashboardPath, { replace: true });
+          }
         }
       }
     } catch (error) {
@@ -276,6 +303,23 @@ export default function Login() {
         description: "Please meet all password requirements before signing up.",
       });
       return;
+    }
+
+    // Check for leaked passwords on signup
+    if (isSignUp) {
+      setIsLoading(true);
+      const { leaked, count } = await checkLeakedPassword(password);
+      if (leaked) {
+        setFormError(`This password has appeared in ${count.toLocaleString()} data breaches. Please choose a different password.`);
+        toast({
+          variant: "destructive",
+          title: "Compromised password",
+          description: "This password was found in known data breaches. Please choose a different one.",
+        });
+        setIsLoading(false);
+        return;
+      }
+      setIsLoading(false);
     }
 
     // If reCAPTCHA is not loaded or has an error, skip verification in dev
