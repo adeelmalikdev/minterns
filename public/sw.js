@@ -1,9 +1,13 @@
-const CACHE_NAME = "mintern-v1";
+const CACHE_NAME = "mintern-v2";
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/manifest.json",
+  "/favicon.ico",
 ];
+
+const API_CACHE_NAME = "mintern-api-v1";
+const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // Install event - cache static assets
 self.addEventListener("install", (event) => {
@@ -21,13 +25,34 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
+          .filter((name) => name !== CACHE_NAME && name !== API_CACHE_NAME)
           .map((name) => caches.delete(name))
       );
     })
   );
   self.clients.claim();
 });
+
+// Background sync queue for offline mutations
+const offlineQueue = [];
+
+self.addEventListener("sync", (event) => {
+  if (event.tag === "offline-queue") {
+    event.waitUntil(processOfflineQueue());
+  }
+});
+
+async function processOfflineQueue() {
+  while (offlineQueue.length > 0) {
+    const request = offlineQueue.shift();
+    try {
+      await fetch(request.url, request.options);
+    } catch {
+      offlineQueue.unshift(request);
+      break;
+    }
+  }
+}
 
 // Fetch event - network first for API, cache first for static assets
 self.addEventListener("fetch", (event) => {
@@ -43,13 +68,24 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // API requests - network first
-  if (url.pathname.startsWith("/api") || url.pathname.includes("supabase")) {
+  // API requests - network first with cache fallback
+  if (url.pathname.startsWith("/api") || url.pathname.includes("supabase") || url.pathname.includes("functions")) {
     event.respondWith(
       fetch(event.request)
-        .catch(() => {
+        .then((response) => {
+          if (response.ok) {
+            const cloned = response.clone();
+            caches.open(API_CACHE_NAME).then((cache) => {
+              cache.put(event.request, cloned);
+            });
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
           return new Response(
-            JSON.stringify({ error: "Offline", message: "You are currently offline" }),
+            JSON.stringify({ error: "Offline", message: "You are currently offline. Data may be stale." }),
             { headers: { "Content-Type": "application/json" } }
           );
         })

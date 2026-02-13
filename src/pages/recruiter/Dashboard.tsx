@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, Users, CheckCircle, Plus, FileText, TrendingUp, ClipboardCheck, ArrowRight, Edit } from "lucide-react";
+import { Building2, Users, CheckCircle, Plus, FileText, TrendingUp, ClipboardCheck, ArrowRight, Edit, Sparkles } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { StatCard } from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Progress } from "@/components/ui/progress";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, FunnelChart, Funnel, LabelList } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecruiterStats, useRecruiterOpportunities, useRecruiterApplicationTrends } from "@/hooks/useRecruiterData";
 import { usePendingSubmissionsCount } from "@/hooks/useRecruiterSubmissions";
 import { EditOpportunityDialog, CloseOpportunityButton } from "@/components/recruiter/EditOpportunityDialog";
+import { useRecruiterAnalytics } from "@/hooks/useRecruiterAnalytics";
 
 export default function RecruiterDashboard() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ export default function RecruiterDashboard() {
   const { data: stats, isLoading: statsLoading } = useRecruiterStats();
   const { data: opportunities, isLoading: oppsLoading } = useRecruiterOpportunities();
   const { data: chartData, isLoading: chartLoading } = useRecruiterApplicationTrends();
+  const { data: analytics, isLoading: analyticsLoading } = useRecruiterAnalytics();
   const { data: pendingCount } = usePendingSubmissionsCount();
 
   const statsData = [
@@ -193,6 +196,77 @@ export default function RecruiterDashboard() {
                   </Button>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Analytics Section */}
+        <div className="grid lg:grid-cols-3 gap-8 mt-8">
+          {/* Applicant Funnel */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                Applicant Funnel
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {analyticsLoading ? <Skeleton className="h-48 w-full" /> : analytics?.funnel && analytics.funnel.length > 0 ? (
+                <div className="space-y-3">
+                  {analytics.funnel.map((stage, i) => (
+                    <div key={stage.stage}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">{stage.stage}</span>
+                        <span className="font-medium text-foreground">{stage.count}</span>
+                      </div>
+                      <Progress value={analytics.funnel[0].count > 0 ? (stage.count / analytics.funnel[0].count) * 100 : 0} className="h-2" />
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-sm text-muted-foreground text-center py-4">No data yet</p>}
+            </CardContent>
+          </Card>
+
+          {/* Response Time & Completion */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Key Metrics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Avg Response Time</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {analyticsLoading ? "..." : analytics?.responseTime ? `${analytics.responseTime}h` : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Completion Rate</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-2xl font-bold text-foreground">
+                    {analyticsLoading ? "..." : `${analytics?.completionRate || 0}%`}
+                  </p>
+                  <Progress value={analytics?.completionRate || 0} className="flex-1 h-2" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Status Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">Status Breakdown</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {analyticsLoading ? <Skeleton className="h-48 w-full" /> : analytics?.statusBreakdown && analytics.statusBreakdown.length > 0 ? (
+                <div className="space-y-3">
+                  {analytics.statusBreakdown.map((item) => (
+                    <div key={item.name} className="flex items-center justify-between">
+                      <span className="text-sm capitalize text-foreground">{item.name.replace("_", " ")}</span>
+                      <Badge variant="secondary">{item.value}</Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-sm text-muted-foreground text-center py-4">No data yet</p>}
             </CardContent>
           </Card>
         </div>
