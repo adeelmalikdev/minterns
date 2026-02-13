@@ -47,44 +47,44 @@ function HeroSection({ profile, portfolio }: { profile: any; portfolio: any }) {
   const totalHours = portfolio?.totalHours || 0;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-primary/5 to-background p-6 md:p-10">
-      <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl" />
-      <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-primary/5 blur-2xl" />
-      
-      <div className="relative flex flex-col items-center gap-6 md:flex-row md:gap-10">
-        <div className="relative">
-          <Avatar className="h-28 w-28 md:h-36 md:w-36 ring-4 ring-primary/20 ring-offset-4 ring-offset-background">
+    <div className="relative overflow-hidden rounded-2xl bg-primary text-white p-8 md:p-12">
+      <div className="flex flex-col items-center gap-8 md:flex-row md:gap-12">
+        <div className="relative shrink-0">
+          <Avatar className="h-28 w-28 md:h-36 md:w-36 ring-4 ring-white/30 ring-offset-4 ring-offset-primary">
             <AvatarImage src={profile?.avatar_url || undefined} />
-            <AvatarFallback className="text-3xl font-bold bg-primary/10 text-primary">
+            <AvatarFallback className="text-3xl font-bold bg-white/20 text-white">
               {profile?.full_name?.charAt(0) || "S"}
             </AvatarFallback>
           </Avatar>
           {internshipCount > 0 && (
-            <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
+            <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-primary shadow-lg">
               <Trophy className="h-4 w-4" />
             </div>
           )}
         </div>
 
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-bold md:text-4xl">{profile?.full_name || "Student"}</h1>
+          <h1 className="text-3xl font-bold md:text-4xl text-white">{profile?.full_name || "Student"}</h1>
+          {profile?.email && (
+            <p className="mt-1 text-white/80">{profile.email}</p>
+          )}
           
           {(profile?.department || profile?.university) && (
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-3 text-muted-foreground md:justify-start">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 md:justify-start">
               {profile?.department && (
-                <span className="flex items-center gap-1.5 text-sm">
+                <span className="flex items-center gap-1.5 text-sm text-white/90">
                   <BookOpen className="h-4 w-4" />
                   {profile.department}
                 </span>
               )}
               {profile?.university && (
-                <span className="flex items-center gap-1.5 text-sm">
+                <span className="flex items-center gap-1.5 text-sm text-white/90">
                   <GraduationCap className="h-4 w-4" />
                   {profile.university}
                 </span>
               )}
               {profile?.semester && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge className="bg-white/20 text-white hover:bg-white/30 border-0">
                   Semester {profile.semester}
                 </Badge>
               )}
@@ -92,28 +92,28 @@ function HeroSection({ profile, portfolio }: { profile: any; portfolio: any }) {
           )}
 
           {profile?.bio && (
-            <p className="mt-3 max-w-xl text-sm text-muted-foreground leading-relaxed">
+            <p className="mt-4 max-w-xl text-sm text-white/90 leading-relaxed">
               {profile.bio}
             </p>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 md:justify-start">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 md:justify-start">
             {profile?.github_url && (
-              <Button variant="outline" size="sm" className="gap-1.5" asChild>
+              <Button size="sm" className="bg-white text-primary hover:bg-white/90 gap-1.5" asChild>
                 <a href={profile.github_url} target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4" /> GitHub
                 </a>
               </Button>
             )}
             {profile?.linkedin_url && (
-              <Button variant="outline" size="sm" className="gap-1.5" asChild>
+              <Button size="sm" className="bg-white text-primary hover:bg-white/90 gap-1.5" asChild>
                 <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">
                   <Linkedin className="h-4 w-4" /> LinkedIn
                 </a>
               </Button>
             )}
             {profile?.portfolio_url && (
-              <Button variant="outline" size="sm" className="gap-1.5" asChild>
+              <Button size="sm" className="bg-white text-primary hover:bg-white/90 gap-1.5" asChild>
                 <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">
                   <Globe className="h-4 w-4" /> Portfolio
                 </a>
@@ -124,13 +124,13 @@ function HeroSection({ profile, portfolio }: { profile: any; portfolio: any }) {
 
         {/* Quick Stats in Hero */}
         <div className="hidden md:flex flex-col gap-3">
-          <div className="rounded-xl border bg-card p-4 text-center shadow-sm">
-            <p className="text-3xl font-bold text-primary">{internshipCount}</p>
-            <p className="text-xs text-muted-foreground">Internships</p>
+          <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 text-center">
+            <p className="text-3xl font-bold text-white">{internshipCount}</p>
+            <p className="text-xs text-white/80">Internships</p>
           </div>
-          <div className="rounded-xl border bg-card p-4 text-center shadow-sm">
-            <p className="text-3xl font-bold text-primary">{totalHours}</p>
-            <p className="text-xs text-muted-foreground">Hours</p>
+          <div className="rounded-xl bg-white/10 backdrop-blur-sm p-4 text-center">
+            <p className="text-3xl font-bold text-white">{totalHours}</p>
+            <p className="text-xs text-white/80">Hours</p>
           </div>
         </div>
       </div>
