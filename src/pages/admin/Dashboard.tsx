@@ -65,6 +65,17 @@ export default function AdminDashboard() {
           ))}
         </div>
 
+        {/* Quick Actions */}
+        <div className="flex gap-3 mb-8">
+          <Button variant="outline" onClick={() => navigate("/admin/users")} className="gap-2">
+            <Users className="h-4 w-4" />
+            Manage Users
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/admin/activities")} className="gap-2">
+            View Activities
+          </Button>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-8 mb-8">
           {/* Platform Growth Chart */}
           <Card>

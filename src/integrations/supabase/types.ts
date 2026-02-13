@@ -230,6 +230,7 @@ export type Database = {
       }
       opportunities: {
         Row: {
+          certificate_url: string | null
           company_name: string
           created_at: string
           deadline: string | null
@@ -247,6 +248,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          certificate_url?: string | null
           company_name: string
           created_at?: string
           deadline?: string | null
@@ -264,6 +266,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          certificate_url?: string | null
           company_name?: string
           created_at?: string
           deadline?: string | null
@@ -285,6 +288,10 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          company_description: string | null
+          company_logo_url: string | null
+          company_name: string | null
+          company_website: string | null
           created_at: string
           deletion_requested_at: string | null
           deletion_scheduled_for: string | null
@@ -299,6 +306,10 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          company_description?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_website?: string | null
           created_at?: string
           deletion_requested_at?: string | null
           deletion_scheduled_for?: string | null
@@ -313,6 +324,10 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          company_description?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_website?: string | null
           created_at?: string
           deletion_requested_at?: string | null
           deletion_scheduled_for?: string | null

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Calendar, FileText, Check, X, MessageSquare, Download, Loader2 } from "lucide-react";
+import { ArrowLeft, User, Mail, Calendar, FileText, Check, X, MessageSquare, Download, Loader2, Award } from "lucide-react";
 import { format } from "date-fns";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -15,6 +15,7 @@ import { useApplicationCompletionStatus, useFeedbackForApplication } from "@/hoo
 import { useToast } from "@/hooks/use-toast";
 import { FeedbackFormDialog } from "@/components/recruiter/FeedbackFormDialog";
 import { CompletionStatusCard } from "@/components/recruiter/CompletionStatus";
+import { AwardCertificateDialog } from "@/components/recruiter/AwardCertificateDialog";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
@@ -249,6 +250,7 @@ export default function ManageApplicants() {
 interface ApplicantCardProps {
   application: {
     id: string;
+    student_id: string;
     status: string;
     cover_letter: string | null;
     resume_url: string | null;
@@ -285,6 +287,7 @@ function ApplicantCard({
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [viewFeedbackOpen, setViewFeedbackOpen] = useState(false);
   const [viewApplicationOpen, setViewApplicationOpen] = useState(false);
+  const [certificateDialogOpen, setCertificateDialogOpen] = useState(false);
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [loadingResume, setLoadingResume] = useState(false);
   
@@ -366,15 +369,26 @@ function ApplicantCard({
               </Button>
 
               {(application.status === "accepted" || application.status === "in_progress") && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.href = `/recruiter/messages?app=${application.id}`}
-                  className="gap-1"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Message
-                </Button>
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.location.href = `/recruiter/messages?app=${application.id}`}
+                    className="gap-1"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Message
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCertificateDialogOpen(true)}
+                    className="gap-1"
+                  >
+                    <Award className="h-4 w-4" />
+                    Award Certificate
+                  </Button>
+                </>
               )}
 
               {showActions && application.status === "pending" && (
@@ -608,6 +622,16 @@ function ApplicantCard({
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Award Certificate Dialog */}
+      <AwardCertificateDialog
+        open={certificateDialogOpen}
+        onOpenChange={setCertificateDialogOpen}
+        applicationId={application.id}
+        studentId={application.student_id || ""}
+        studentName={profile?.full_name || "Unknown Student"}
+        opportunityTitle={opportunityTitle}
+      />
     </>
   );
 }
